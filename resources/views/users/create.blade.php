@@ -1,16 +1,12 @@
-<h1>Cadastrar Usuário</h1>
+<h1>Criar Usuário</h1>
 
-<form method="POST" action="{{ route('users.store') }}">
-@csrf
+<form action="{{ route('users.store') }}" method="POST">
+    @csrf
 
-<input name="nome" placeholder="Nome">
-<input name="sobrenome" placeholder="Sobrenome">
-<input name="cpf" placeholder="CPF">
-<input name="telefone" placeholder="Telefone">
-<input type="date" name="data_nascimento">
-<input name="email" placeholder="Email">
-<input type="password" name="password" placeholder="Senha">
+    <input type="text" name="name" placeholder="Nome"><br>
+    <input type="email" name="email" placeholder="Email"><br>
+    <input type="text" name="cpf" placeholder="CPF"><br>
+    <input type="password" name="password" placeholder="Senha"><br>
 
-<button type="submit">Salvar</button>
-
+    <button type="submit">Salvar</button>
 </form>

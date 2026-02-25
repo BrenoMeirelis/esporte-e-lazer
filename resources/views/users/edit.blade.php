@@ -1,16 +1,12 @@
 <h1>Editar Usuário</h1>
 
-<form method="POST" action="{{ route('users.update',$user) }}">
-@csrf
-@method('PUT')
+<form action="{{ route('users.update', $user) }}" method="POST">
+    @csrf
+    @method('PUT')
 
-<input name="nome" value="{{ $user->nome }}">
-<input name="sobrenome" value="{{ $user->sobrenome }}">
-<input name="cpf" value="{{ $user->cpf }}">
-<input name="telefone" value="{{ $user->telefone }}">
-<input type="date" name="data_nascimento" value="{{ $user->data_nascimento->format('Y-m-d') }}">
-<input name="email" value="{{ $user->email }}">
+    <input type="text" name="name" value="{{ $user->name }}"><br>
+    <input type="email" name="email" value="{{ $user->email }}"><br>
+    <input type="text" name="cpf" value="{{ $user->cpf }}"><br>
 
-<button type="submit">Atualizar</button>
-
+    <button type="submit">Atualizar</button>
 </form>
