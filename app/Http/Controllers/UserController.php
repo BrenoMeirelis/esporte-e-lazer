@@ -1,23 +1,24 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Lista todos os usuários.
      */
     public function index()
     {
-        $users = User::all();
+        $users = User::latest()->get();
+
         return view('users.index', compact('users'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Exibe o formulário de criação.
      */
     public function create()
     {
@@ -25,78 +26,71 @@ class UserController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Armazena um novo usuário.
      */
     public function store(Request $request)
     {
-        dd($request);
-
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'cpf' => 'required|string|unique:users',
-            'password' => 'required|min:6',
+        $data = $request->validate([
+            'name'            => ['required', 'string', 'max:255'],
+            'cpf'             => ['required', 'string', 'max:14', 'unique:users,cpf'],
+            'telefone'        => ['required', 'string', 'max:20'],
+            'data_nascimento' => ['required', 'date'],
+            'tipo'            => ['required', 'in:admin,usuario'],
+            'email'           => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password'        => ['required', 'min:6', 'confirmed'],
         ]);
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'cpf' => $request->cpf,
-            'password' => Hash::make($request->password),
-        ]);
+        User::create($data);
 
-        return redirect()->route('users.index')
+        return redirect()
+            ->route('users.index')
             ->with('success', 'Usuário criado com sucesso!');
     }
 
     /**
-     * Display the specified resource.
+     * Exibe o formulário de edição.
      */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, User $user)
-    {
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email,' . $user->id,
-        'cpf' => 'required|string|unique:users,cpf,' . $user->id,
-    ]);
-
-    $user->update([
-        'name' => $request->name,
-        'email' => $request->email,
-        'cpf' => $request->cpf,
-    ]);
-
-    return redirect()->route('users.index')
-        ->with('success', 'Usuário atualizado com sucesso!');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(User $user)
-    {
-    $user->delete();
-
-    return redirect()->route('users.index')
-        ->with('success', 'Usuário excluído com sucesso!');
-    }
-
     public function edit(User $user)
     {
         return view('users.edit', compact('user'));
     }
+
+    /**
+     * Atualiza o usuário.
+     */
+    public function update(Request $request, User $user)
+    {
+        $data = $request->validate([
+            'name'            => ['required', 'string', 'max:255'],
+            'cpf'             => ['required', 'string', 'max:14', 'unique:users,cpf,' . $user->id],
+            'telefone'        => ['required', 'string', 'max:20'],
+            'data_nascimento' => ['required', 'date'],
+            'tipo'            => ['required', 'in:admin,usuario'],
+            'email'           => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'password'        => ['nullable', 'min:6', 'confirmed'],
+        ]);
+
+        // Remove senha se não for preenchida
+        if (empty($data['password'])) {
+            unset($data['password']);
+        }
+
+        $user->update($data);
+
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'Usuário atualizado com sucesso!');
+    }
+
+    /**
+     * Remove o usuário.
+     */
+    public function destroy(User $user)
+    {
+        $user->delete();
+
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'Usuário excluído com sucesso!');
+    }
 }
-
-
