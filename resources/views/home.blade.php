@@ -1,123 +1,119 @@
 @extends('layouts.app')
 
 @section('content')
+    <style>
+        .hero {
+            background: linear-gradient(135deg, #4e73df, #1cc88a);
+            color: white;
+            padding: 60px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+        }
 
-<style>
+        .card-dashboard {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: 0.3s;
+        }
 
-.hero{
-    background: linear-gradient(135deg,#4e73df,#1cc88a);
-    color:white;
-    padding:60px;
-    border-radius:15px;
-    margin-bottom:40px;
-}
+        .card-dashboard:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
 
-.card-dashboard{
-    border:none;
-    border-radius:15px;
-    overflow:hidden;
-    transition:0.3s;
-}
+        .card-dashboard img {
+            height: 160px;
+            object-fit: cover;
+        }
 
-.card-dashboard:hover{
-    transform:translateY(-8px);
-    box-shadow:0 10px 25px rgba(0,0,0,0.2);
-}
+        .numero {
+            font-size: 40px;
+            font-weight: bold;
+        }
+    </style>
 
-.card-dashboard img{
-    height:160px;
-    object-fit:cover;
-}
+    <div class="container mt-4">
 
-.numero{
-    font-size:40px;
-    font-weight:bold;
-}
+        <div class="hero text-center">
+            <h1 class="fw-bold">Sistema Esporte & Lazer</h1>
+            <p>Gerenciamento de usuários, cidades e categorias de eventos</p>
+        </div>
 
-</style>
+        <div class="row g-4">
 
-<div class="container mt-4">
+            <!-- USUARIOS -->
 
-<div class="hero text-center">
-    <h1 class="fw-bold">Sistema Esporte & Lazer</h1>
-    <p>Gerenciamento de usuários, cidades e categorias de eventos</p>
-</div>
+            <div class="col-md-4">
+                <div class="card card-dashboard">
 
-<div class="row g-4">
+                    <img src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61" class="card-img-top">
 
-<!-- USUARIOS -->
+                    <div class="card-body text-center">
 
-<div class="col-md-4">
-<div class="card card-dashboard">
+                        <h5 class="card-title">Usuários</h5>
 
-<img src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61" class="card-img-top">
+                        <div class="numero text-primary">
+                            {{ $usuarios }}
+                        </div>
 
-<div class="card-body text-center">
+                        <p class="text-muted">
+                            Pessoas cadastradas no sistema
+                        </p>
 
-<h5 class="card-title">Usuários</h5>
-
-<div class="numero text-primary">
-{{ $usuarios }}
-</div>
-
-<p class="text-muted">
-Pessoas cadastradas no sistema
-</p>
-
-</div>
-</div>
-</div>
+                    </div>
+                </div>
+            </div>
 
 
-<!-- CIDADES -->
+            <!-- CIDADES -->
 
-<div class="col-md-4">
-<div class="card card-dashboard">
+            <div class="col-md-4">
+                <div class="card card-dashboard">
 
-<img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df" class="card-img-top">
+                    <img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df" class="card-img-top">
 
-<div class="card-body text-center">
+                    <div class="card-body text-center">
 
-<h5 class="card-title">Cidades</h5>
+                        <h5 class="card-title">Cidades</h5>
 
-<div class="numero text-success">
-{{ $cidades }}
-</div>
+                        <div class="numero text-success">
+                            {{ $cidades }}
+                        </div>
 
-<p class="text-muted">
-Cidades registradas
-</p>
+                        <p class="text-muted">
+                            Cidades registradas
+                        </p>
 
-</div>
-</div>
-</div>
+                    </div>
+                </div>
+            </div>
 
 
-<!-- CATEGORIAS -->
+            <!-- CATEGORIAS -->
 
-<div class="col-md-4">
-<div class="card card-dashboard">
+            <div class="col-md-4">
+                <div class="card card-dashboard">
 
-<img src="https://images.unsplash.com/photo-1508609349937-5ec4ae374ebf" class="card-img-top">
+                    <img src="https://images.unsplash.com/photo-1508609349937-5ec4ae374ebf" class="card-img-top">
 
-<div class="card-body text-center">
+                    <div class="card-body text-center">
 
-<h5 class="card-title">Categorias</h5>
+                        <h5 class="card-title">Categorias</h5>
 
-<div class="numero text-danger">
-{{ $categorias }}
-</div>
+                        <div class="numero text-danger">
+                            {{ $categorias }}
+                        </div>
 
-<p class="text-muted">
-Tipos de eventos cadastrados
-</p>
+                        <p class="text-muted">
+                            Tipos de eventos cadastrados
+                        </p>
 
-</div>
-</div>
-</div>
+                    </div>
+                </div>
+            </div>
 
-</div>
+        </div>
 
-</div>
-
+    </div>
 @endsection
