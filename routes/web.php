@@ -5,6 +5,14 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\EspacoController;
+use App\Http\Controllers\ReservaController;
+
+Route::resource('reservas', ReservaController::class);
+Route::get('/calendario', [ReservaController::class,'calendario']);
+Route::get('/eventos', [ReservaController::class,'eventos']);
+
+Route::resource('espacos', EspacoController::class);
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 

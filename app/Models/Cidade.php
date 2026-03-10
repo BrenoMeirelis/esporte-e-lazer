@@ -12,4 +12,9 @@ class Cidade extends Model
         'uf',
         'email'
     ];
+
+    public function espacos()
+    {
+        return $this->hasMany(Espaco::class);
+    }
 }
