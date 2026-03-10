@@ -17,24 +17,41 @@
 
 <script>
 
-document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
 
-var calendarEl = document.getElementById('calendar');
+    var calendarEl = document.getElementById('calendar');
 
-var calendar = new FullCalendar.Calendar(calendarEl, {
+    var calendar = new FullCalendar.Calendar(calendarEl, {
 
-initialView: 'dayGridMonth',
+    initialView: 'dayGridMonth',
 
-events: '/eventos',
+    locale: 'pt-br',
 
-locale: 'pt-br'
+    events: '/eventos',
 
-});
+    dateClick: function(info) {
 
-calendar.render();
+    window.location.href = "/reservas/create?data=" + info.dateStr;
 
-});
+    },
 
-</script>
+    eventClick: function(info) {
 
+    let evento = info.event.extendedProps;
+
+    alert(
+    "Espaço: " + evento.espaco +
+    "\nUsuário: " + evento.usuario +
+    "\nHorário: " + evento.hora_inicio + " - " + evento.hora_fim
+    );
+
+    }
+
+    });
+
+    calendar.render();
+
+    });
+
+    </script>
 @endsection
