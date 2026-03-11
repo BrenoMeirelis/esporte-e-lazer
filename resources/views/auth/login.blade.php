@@ -2,31 +2,75 @@
 
 @section('content')
 
-<div class="row justify-content-center">
-<div class="col-md-4">
+<style>
+.hero-form{
+    background-color: #198754;
+    color:white;
+    padding:50px 30px;
+    border-radius:15px;
+    margin-bottom:40px;
+    position: relative;
+    text-align: center;
+}
 
-<h3 class="mb-4">Login</h3>
+.hero-form h1{
+    font-weight:700;
+    font-size:36px;
+}
 
-<form method="POST" action="{{ route('login.post') }}">
-@csrf
+.form-card{
+    background:#f8f9fa;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+    transition:0.3s;
+}
 
-<div class="mb-3">
-<label>Email</label>
-<input type="email" name="email" class="form-control" required>
-</div>
+.form-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 10px 25px rgba(0,0,0,0.15);
+}
 
-<div class="mb-3">
-<label>Senha</label>
-<input type="password" name="password" class="form-control" required>
-</div>
+.btn-space{
+    margin-right:10px;
+}
+</style>
 
-<button class="btn btn-primary w-100">
-Entrar
-</button>
+<div class="container mt-4">
 
-</form>
+    <div class="hero-form">
+        <h1>Login</h1>
+        <p>Faça login para acessar o sistema de reservas.</p>
+    </div>
 
-</div>
+    <div class="form-card">
+
+        <form action="{{ route('login.post') }}" method="POST">
+            @csrf
+
+            <div class="mb-3">
+                <label class="form-label">E-mail</label>
+                <input type="email" name="email" class="form-control" placeholder="Digite seu e-mail" value="{{ old('email') }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Senha</label>
+                <input type="password" name="password" class="form-control" placeholder="Digite sua senha" required>
+            </div>
+
+            @if($errors->any())
+                <div class="alert alert-danger">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
+            <button type="submit" class="btn btn-success btn-space">Entrar</button>
+            <a href="{{ route('home') }}" class="btn btn-secondary">Voltar</a>
+
+        </form>
+
+    </div>
+
 </div>
 
 @endsection

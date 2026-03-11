@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Espaco extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'cidade_id',
         'titulo',
         'descricao',
+        'cidade_id',
         'horario_abertura',
         'horario_encerramento',
         'periodo_max_reserva',
@@ -20,7 +23,6 @@ class Espaco extends Model
         'max_participantes',
         'materiais',
         'responsavel',
-        'foto'
     ];
 
     public function cidade()

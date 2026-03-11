@@ -3,72 +3,91 @@
 namespace App\Http\Controllers;
 
 use App\Models\Espaco;
+use App\Models\Cidade;
 use Illuminate\Http\Request;
 
 class EspacoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
-{
-    $espacos = Espaco::with('cidade')->get();
-    return view('espacos.index', compact('espacos'));
-}
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-{
-    $cidades = Cidade::all();
-    return view('espacos.create', compact('cidades'));
-}
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-{
-    Espaco::create($request->all());
-
-    return redirect()->route('espacos.index')
-        ->with('success', 'Espaço criado com sucesso');
-}
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Espaco $espaco)
     {
-        //
+        $espacos = Espaco::with('cidade')->get();
+        return view('espacos.index', compact('espacos'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Espaco $espaco)
-{
-    $cidades = Cidade::all();
-    return view('espacos.edit', compact('espaco','cidades'));
-}
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Espaco $espaco)
+    public function create()
     {
-        $espaco->update($request->all());
+        $cidades = Cidade::all();
+        return view('espacos.create', compact('cidades'));
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'titulo' => 'required|string|max:255',
+            'cidade_id' => 'required|exists:cidades,id',
+            'descricao' => 'nullable|string',
+            'horario_abertura' => 'nullable',
+            'horario_encerramento' => 'nullable',
+            'periodo_max_reserva' => 'nullable|integer',
+            'localizacao' => 'nullable|string|max:255',
+            'regras' => 'nullable|string',
+            'observacoes' => 'nullable|string',
+            'min_participantes' => 'nullable|integer',
+            'max_participantes' => 'nullable|integer',
+            'materiais' => 'nullable|string',
+            'responsavel' => 'nullable|string|max:255',
+        ]);
+
+        // Garantir valores padrão se algum campo numérico estiver vazio
+        $validated['periodo_max_reserva'] = $validated['periodo_max_reserva'] ?? 0;
+        $validated['min_participantes'] = $validated['min_participantes'] ?? 0;
+        $validated['max_participantes'] = $validated['max_participantes'] ?? 0;
+
+        Espaco::create($validated);
 
         return redirect()->route('espacos.index')
-            ->with('success', 'Espaço atualizado');
+            ->with('success', 'Espaço criado com sucesso!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Espaco $espaco)
-{
-    $espaco->delete();
+    public function edit(Espaco $espaco)
+    {
+        $cidades = Cidade::all();
+        return view('espacos.edit', compact('espaco', 'cidades'));
+    }
 
-    return redirect()->route('espacos.index');
-}
+    public function update(Request $request, Espaco $espaco)
+    {
+        $validated = $request->validate([
+            'titulo' => 'required|string|max:255',
+            'cidade_id' => 'required|exists:cidades,id',
+            'descricao' => 'nullable|string',
+            'horario_abertura' => 'nullable',
+            'horario_encerramento' => 'nullable',
+            'periodo_max_reserva' => 'nullable|integer',
+            'localizacao' => 'nullable|string|max:255',
+            'regras' => 'nullable|string',
+            'observacoes' => 'nullable|string',
+            'min_participantes' => 'nullable|integer',
+            'max_participantes' => 'nullable|integer',
+            'materiais' => 'nullable|string',
+            'responsavel' => 'nullable|string|max:255',
+        ]);
+
+        $validated['periodo_max_reserva'] = $validated['periodo_max_reserva'] ?? 0;
+        $validated['min_participantes'] = $validated['min_participantes'] ?? 0;
+        $validated['max_participantes'] = $validated['max_participantes'] ?? 0;
+
+        $espaco->update($validated);
+
+        return redirect()->route('espacos.index')
+            ->with('success', 'Espaço atualizado com sucesso!');
+    }
+
+    public function destroy(Espaco $espaco)
+    {
+        $espaco->delete();
+
+        return redirect()->route('espacos.index')
+            ->with('success', 'Espaço excluído com sucesso!');
+    }
 }

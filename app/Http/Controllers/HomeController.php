@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Cidade;
-use App\Models\Categoria;
+use App\Models\Espaco;
 
 class HomeController extends Controller
 {
@@ -12,12 +12,12 @@ class HomeController extends Controller
     {
         $usuarios = User::count();
         $cidades = Cidade::count();
-        $categorias = Categoria::count();
+        $espacos = Espaco::count();
 
         return view('home', compact(
             'usuarios',
             'cidades',
-            'categorias'
+            'espacos'
         ));
     }
 }
