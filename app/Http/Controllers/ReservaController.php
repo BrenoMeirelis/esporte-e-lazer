@@ -10,30 +10,24 @@ class ReservaController extends Controller
 {
 
     public function eventos()
-    {
-        $reservas = Reserva::with(['espaco','user'])->get();
+{
+    $reservas = Reserva::selectRaw('data, COUNT(*) as total')
+        ->groupBy('data')
+        ->get();
 
-        $eventos = [];
+    $eventos = [];
 
-        foreach ($reservas as $reserva) {
+    foreach ($reservas as $reserva) {
 
-            $eventos[] = [
-
-                'title' => $reserva->espaco->titulo . ' - ' . $reserva->user->name,
-
-                'start' => $reserva->data.'T'.$reserva->hora_inicio,
-
-                'end' => $reserva->data.'T'.$reserva->hora_fim,
-
-                'color' => $this->corEspaco($reserva->espaco_id),
-
-            ];
-        }
-
-        return response()->json($eventos);
+        $eventos[] = [
+            'title' => $reserva->total . ' reservas',
+            'start' => $reserva->data,
+            'color' => '#28a745'
+        ];
     }
 
-
+    return response()->json($eventos);
+}
     public function calendario()
     {
         return view('reservas.calendario');
@@ -42,14 +36,15 @@ class ReservaController extends Controller
 
     public function index()
     {
-        //
+        $reservas = Reserva::with('espaco','user')->get();
+
+        return view('reservas.index', compact('reservas'));
     }
 
 
     public function create(Request $request)
     {
         $espacos = Espaco::all();
-
         $data = $request->data;
 
         return view('reservas.create', compact('espacos','data'));
@@ -57,43 +52,35 @@ class ReservaController extends Controller
 
 
     public function store(Request $request)
-{
-    $request->validate([
-        'espaco_id' => 'required',
-        'data' => 'required|date',
-        'hora_inicio' => 'required',
-        'hora_fim' => 'required|after:hora_inicio'
-    ]);
+    {
+        $existeReserva = Reserva::where('espaco_id', $request->espaco_id)
+            ->where('data', $request->data)
+            ->where(function($query) use ($request) {
 
-    // Verificar conflito de horário
-    $conflito = \App\Models\Reserva::where('espaco_id', $request->espaco_id)
-        ->where('data', $request->data)
-        ->where(function ($query) use ($request) {
-
-            $query->whereBetween('hora_inicio', [$request->hora_inicio, $request->hora_fim])
-                ->orWhereBetween('hora_fim', [$request->hora_inicio, $request->hora_fim])
-                ->orWhere(function ($q) use ($request) {
-                    $q->where('hora_inicio', '<=', $request->hora_inicio)
+                $query->whereBetween('hora_inicio', [$request->hora_inicio, $request->hora_fim])
+                        ->orWhereBetween('hora_fim', [$request->hora_inicio, $request->hora_fim])
+                        ->orWhere(function($q) use ($request) {
+                        $q->where('hora_inicio', '<=', $request->hora_inicio)
                         ->where('hora_fim', '>=', $request->hora_fim);
-                });
+                    });
 
-        })
-        ->exists();
+            })->exists();
 
-    if ($conflito) {
-        return back()->with('erro', 'Este horário já está reservado para este espaço.');
+        if ($existeReserva) {
+            return back()->with('error', 'Este horário já está reservado!');
+        }
+
+        Reserva::create([
+            'espaco_id' => $request->espaco_id,
+            'user_id' => auth()->id(),
+            'data' => $request->data,
+            'hora_inicio' => $request->hora_inicio,
+            'hora_fim' => $request->hora_fim
+        ]);
+
+        return redirect()->route('reservas.index')
+            ->with('success', 'Reserva feita com sucesso!');
     }
-
-    \App\Models\Reserva::create([
-        'user_id' => auth()->id(),
-        'espaco_id' => $request->espaco_id,
-        'data' => $request->data,
-        'hora_inicio' => $request->hora_inicio,
-        'hora_fim' => $request->hora_fim
-    ]);
-
-    return redirect('/calendario')->with('sucesso','Reserva criada com sucesso');
-}
 
 
     public function show(Reserva $reserva)
@@ -120,17 +107,16 @@ class ReservaController extends Controller
     }
 
 
+    private function corEspaco($id)
+    {
+        $cores = [
+            1 => '#28a745',
+            2 => '#007bff',
+            3 => '#ffc107',
+            4 => '#dc3545'
+        ];
 
-private function corEspaco($id)
-{
-    $cores = [
-        1 => '#28a745',
-        2 => '#007bff',
-        3 => '#ffc107',
-        4 => '#dc3545'
-    ];
-
-    return $cores[$id] ?? '#6c757d';
-}
+        return $cores[$id] ?? '#6c757d';
+    }
 
 }

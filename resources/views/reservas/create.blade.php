@@ -33,6 +33,12 @@
 </div>
 @endif
 
+@if(session('error'))
+<div class="alert alert-danger">
+    {{ session('error') }}
+</div>
+@endif
+
 @endforeach
 
 </select>
@@ -41,13 +47,9 @@
 
 
 <div class="mb-3">
-<label>Data</label>
-
-<input type="date"
-name="data"
-class="form-control"
-value="{{ $data }}">
-</div>
+    <label>Data</label>
+    <input type="date" name="data" class="form-control" value="{{ $data }}">
+    </div>
 
 
 <div class="mb-3">

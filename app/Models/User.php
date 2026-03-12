@@ -51,4 +51,9 @@ class User extends Authenticatable implements MustVerifyEmail
             'data_nascimento' => 'date',
         ];
     }
+
+    public function cidades()
+    {
+        return $this->belongsToMany(Cidade::class);
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cidade;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class CidadeController extends Controller
@@ -34,9 +35,12 @@ class CidadeController extends Controller
     }
 
     public function show(Cidade $cidade)
-    {
-        return view('cidades.show', compact('cidade'));
-    }
+{
+    $usuarios = $cidade->usuarios;
+    $espacos = $cidade->espacos;
+
+    return view('cidades.show', compact('cidade','usuarios','espacos'));
+}
 
     public function edit(Cidade $cidade)
     {
@@ -64,5 +68,15 @@ class CidadeController extends Controller
 
         return redirect()->route('cidades.index')
             ->with('success', 'Cidade excluída com sucesso!');
+    }
+
+    public function buscarUsuarios(Request $request)
+    {
+        $usuarios = User::where('name','like','%'.$request->busca.'%')
+            ->orWhere('email','like','%'.$request->busca.'%')
+            ->orWhere('cpf','like','%'.$request->busca.'%')
+            ->get();
+
+        return response()->json($usuarios);
     }
 }

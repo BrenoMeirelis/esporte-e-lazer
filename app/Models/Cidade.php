@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
+use App\Models\Espaco;
 
 class Cidade extends Model
 {
@@ -17,4 +19,10 @@ class Cidade extends Model
     {
         return $this->hasMany(Espaco::class);
     }
+
+    public function usuarios()
+    {
+        return $this->belongsToMany(User::class);
+    }
 }
+

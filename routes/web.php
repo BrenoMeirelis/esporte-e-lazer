@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EspacoController;
 use App\Http\Controllers\ReservaController;
 
-
+Route::resource('reservas', ReservaController::class);
 Route::resource('reservas', ReservaController::class);
 Route::get('/calendario', [ReservaController::class,'calendario']);
 Route::get('/eventos', [ReservaController::class,'eventos']);
