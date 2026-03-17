@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Espaco;
+use App\Models\Area;
 
 class Cidade extends Model
 {
@@ -24,5 +25,11 @@ class Cidade extends Model
     {
         return $this->belongsToMany(User::class);
     }
+
+public function areas()
+    {
+        return $this->hasMany(Area::class);
+    }
+
 }
 

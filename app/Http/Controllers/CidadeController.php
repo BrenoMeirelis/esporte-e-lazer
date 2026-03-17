@@ -34,13 +34,27 @@ class CidadeController extends Controller
             ->with('success', 'Cidade cadastrada com sucesso!');
     }
 
-    public function show(Cidade $cidade)
-{
-    $usuarios = $cidade->usuarios;
-    $espacos = $cidade->espacos;
+    public function show(Request $request, $id)
+    {
+        $cidade = Cidade::with(['areas','usuarios'])->findOrFail($id);
+        $search = $request->search;
 
-    return view('cidades.show', compact('cidade','usuarios','espacos'));
-}
+        $usuarios = [];
+
+        if ($search) {
+
+            $usuarios = User::where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")
+                ->orWhere('cpf', 'like', "%{$search}%")
+                ->get();
+        }
+
+        return view('cidades.show', compact(
+            'cidade',
+            'usuarios',
+            'search'
+        ));
+    }
 
     public function edit(Cidade $cidade)
     {
@@ -79,4 +93,20 @@ class CidadeController extends Controller
 
         return response()->json($usuarios);
     }
+
+    public function adicionarUsuario(Request $request, $cidade_id)
+    {
+        $request->validate([
+            'usuario_id' => 'required|exists:users,id'
+        ]);
+
+        $cidade = Cidade::findOrFail($cidade_id);
+
+        $cidade->usuarios()->syncWithoutDetaching([
+            $request->usuario_id
+        ]);
+
+        return back()->with('success','Usuário adicionado com sucesso');
+    }
+
 }

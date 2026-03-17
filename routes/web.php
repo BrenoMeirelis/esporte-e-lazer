@@ -29,4 +29,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('cidades', CidadeController::class);
 
+    Route::post('/cidades/{cidade}/adicionar-usuario',
+    [CidadeController::class, 'adicionarUsuario']
+            )->name('cidades.adicionarUsuario');
+
 });

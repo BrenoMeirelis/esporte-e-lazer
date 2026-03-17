@@ -2,83 +2,161 @@
 
 @section('content')
 
-<div class="container">
+<style>
 
-<div class="card shadow mb-4">
+.hero-cidade{
+    background-color:#198754;
+    color:white;
+    padding:40px 20px;
+    border-radius:15px;
+    text-align:center;
+    margin-bottom:35px;
+}
 
-<div class="card-header bg-success text-white">
-<h4 class="mb-0">Cidade: {{ $cidade->nome }}</h4>
+.hero-cidade h1{
+    font-size:34px;
+    font-weight:700;
+}
+
+.hero-cidade p{
+    font-size:18px;
+}
+
+.card-painel{
+    border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+    transition:0.3s;
+}
+
+.card-painel:hover{
+    transform:translateY(-4px);
+    box-shadow:0 10px 25px rgba(0,0,0,0.15);
+}
+
+.table td{
+    vertical-align:middle;
+}
+
+.nav-tabs .nav-link{
+    font-weight:600;
+}
+
+</style>
+
+
+<div class="container mt-4">
+
+<!-- HERO -->
+<div class="hero-cidade">
+    <h1>{{ $cidade->nome }}</h1>
+    <p>Gerencie usuários autorizados e áreas cadastradas desta cidade.</p>
 </div>
 
-<div class="card-body">
 
-<ul class="nav nav-tabs" id="cidadeTabs">
+<ul class="nav nav-tabs mb-4">
 
 <li class="nav-item">
 <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#usuarios">
-Usuários Autorizados
+👥 Usuários Autorizados
 </button>
 </li>
 
 <li class="nav-item">
-<button class="nav-link" data-bs-toggle="tab" data-bs-target="#espacos">
-Áreas da Cidade
+<button class="nav-link" data-bs-toggle="tab" data-bs-target="#areas">
+🏟 Áreas da Cidade
 </button>
 </li>
 
 </ul>
 
-<div class="tab-content mt-4">
 
-<!-- ABA USUÁRIOS -->
+<div class="tab-content">
 
+<!-- USUARIOS -->
 <div class="tab-pane fade show active" id="usuarios">
 
-<div class="card shadow-sm">
-
-<div class="card-header bg-light">
-
-<form method="GET" action="" class="d-flex gap-2">
-
-<input type="text" name="busca" class="form-control" placeholder="Buscar por nome, email ou CPF">
-
-<button class="btn btn-success">
-Pesquisar
-</button>
-
-</form>
-
-</div>
+<div class="card card-painel">
 
 <div class="card-body">
 
-<table class="table table-striped table-hover">
+<h5 class="mb-3">Pesquisar Usuário</h5>
 
-<thead class="table-dark">
+<form method="GET" action="{{ route('cidades.show',$cidade->id) }}">
+
+<div class="row mb-4">
+
+<div class="col-md-9">
+
+<input
+type="text"
+name="search"
+class="form-control"
+placeholder="Digite nome, email ou CPF"
+value="{{ request('search') }}"
+>
+
+</div>
+
+<div class="col-md-3">
+
+<button class="btn btn-success w-100">
+🔎 Pesquisar
+</button>
+
+</div>
+
+</div>
+
+</form>
+
+
+<div class="table-responsive">
+
+<table class="table table-hover">
+
+<thead class="table-light">
 
 <tr>
 <th>Nome</th>
 <th>Email</th>
 <th>CPF</th>
+<th>Ação</th>
 </tr>
 
 </thead>
 
 <tbody>
 
-@forelse($usuarios as $user)
+@forelse($usuarios as $usuario)
 
 <tr>
-<td>{{ $user->name }}</td>
-<td>{{ $user->email }}</td>
-<td>{{ $user->cpf }}</td>
+
+<td>{{ $usuario->name }}</td>
+<td>{{ $usuario->email }}</td>
+<td>{{ $usuario->cpf }}</td>
+
+<td>
+
+<form method="POST" action="{{ route('cidades.adicionarUsuario',$cidade->id) }}">
+@csrf
+
+<input type="hidden" name="usuario_id" value="{{ $usuario->id }}">
+
+<button class="btn btn-success btn-sm">
+Adicionar
+</button>
+
+</form>
+
+</td>
+
 </tr>
 
 @empty
 
 <tr>
-<td colspan="3" class="text-center">
-Nenhum usuário autorizado
+<td colspan="4" class="text-center text-muted">
+Nenhum usuário encontrado
 </td>
 </tr>
 
@@ -91,53 +169,52 @@ Nenhum usuário autorizado
 </div>
 
 </div>
+</div>
 
 </div>
 
-<!-- ABA ESPAÇOS -->
 
-<div class="tab-pane fade" id="espacos">
+<!-- AREAS -->
+<div class="tab-pane fade" id="areas">
 
-<div class="card shadow-sm">
-
-<div class="card-header bg-light">
-
-<h5 class="mb-0">Áreas cadastradas</h5>
-
-</div>
+<div class="card card-painel">
 
 <div class="card-body">
 
-<table class="table table-bordered table-hover">
+<h5 class="mb-3">Áreas cadastradas</h5>
 
-<thead class="table-dark">
+<div class="table-responsive">
+
+<table class="table table-hover">
+
+<thead class="table-light">
 
 <tr>
-<th>Título</th>
-<th width="250">Ações</th>
+<th>Nome</th>
+<th>Ações</th>
 </tr>
 
 </thead>
 
 <tbody>
 
-@forelse($espacos as $espaco)
+@forelse($cidade->areas as $area)
 
 <tr>
 
-<td>{{ $espaco->titulo }}</td>
+<td>{{ $area->nome }}</td>
 
 <td>
 
-<a href="{{ route('espacos.show',$espaco->id) }}" class="btn btn-info btn-sm">
+<a href="{{ route('areas.show',$area->id) }}" class="btn btn-primary btn-sm">
 Ver
 </a>
 
-<a href="{{ route('espacos.edit',$espaco->id) }}" class="btn btn-warning btn-sm">
+<a href="{{ route('areas.edit',$area->id) }}" class="btn btn-warning btn-sm">
 Editar
 </a>
 
-<a href="/calendario?espaco={{ $espaco->id }}" class="btn btn-success btn-sm">
+<a href="{{ route('areas.reservas',$area->id) }}" class="btn btn-success btn-sm">
 Reservas
 </a>
 
@@ -148,7 +225,7 @@ Reservas
 @empty
 
 <tr>
-<td colspan="2" class="text-center">
+<td colspan="2" class="text-center text-muted">
 Nenhuma área cadastrada
 </td>
 </tr>
@@ -162,12 +239,10 @@ Nenhuma área cadastrada
 </div>
 
 </div>
-
 </div>
 
 </div>
 
-</div>
 
 </div>
 

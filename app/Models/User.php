@@ -53,7 +53,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     public function cidades()
-    {
-        return $this->belongsToMany(Cidade::class);
-    }
+{
+    return $this->belongsToMany(Cidade::class);
+}
 }
