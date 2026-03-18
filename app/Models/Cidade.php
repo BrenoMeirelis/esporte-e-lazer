@@ -16,20 +16,21 @@ class Cidade extends Model
         'email'
     ];
 
+    // Relacionamento com Espaços
     public function espacos()
     {
         return $this->hasMany(Espaco::class);
     }
 
+    // Relacionamento com Usuários autorizados
     public function usuarios()
     {
         return $this->belongsToMany(User::class);
     }
 
-public function areas()
+    // Relacionamento com Áreas
+    public function areas()
     {
         return $this->hasMany(Area::class);
     }
-
 }
-

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Cidade; // Corrigido o namespace
 
 class Espaco extends Model
 {
@@ -25,6 +26,7 @@ class Espaco extends Model
         'responsavel',
     ];
 
+    // Relacionamento com Cidade
     public function cidade()
     {
         return $this->belongsTo(Cidade::class);

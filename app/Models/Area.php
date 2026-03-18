@@ -6,15 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Area extends Model
 {
-
-    protected $fillable = [
-        'nome',
-        'cidade_id'
-    ];
+    public function espacos()
+    {
+        return $this->hasMany(Espaco::class);
+    }
 
     public function cidade()
     {
         return $this->belongsTo(Cidade::class);
     }
-
 }

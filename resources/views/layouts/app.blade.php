@@ -6,7 +6,7 @@
     <title>{{ config('app.name', 'Sistema') }}</title>
 
     {{-- Bootstrap 5 CSS --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
 
     {{-- Bootstrap Icons --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -59,9 +59,19 @@
 
                     {{-- Espaços --}}
                     <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center" href="{{ route('espacos.index') }}">
-                            <i class="bi bi-building me-1"></i> Espaços
-                        </a>
+                        @php
+                            // Use a primeira cidade como default se existir
+                            $cidadeDefault = \App\Models\Cidade::first();
+                        @endphp
+                        @if($cidadeDefault)
+                            <a class="nav-link d-flex align-items-center" href="{{ route('espacos.index', ['cidade_id' => $cidadeDefault->id]) }}">
+                                <i class="bi bi-building me-1"></i> Espaços
+                            </a>
+                        @else
+                            <span class="nav-link text-muted d-flex align-items-center">
+                                <i class="bi bi-building me-1"></i> Espaços
+                            </span>
+                        @endif
                     </li>
 
                     {{-- Reservas --}}
@@ -121,7 +131,7 @@
     </footer>
 
     {{-- Bootstrap 5 JS --}}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
