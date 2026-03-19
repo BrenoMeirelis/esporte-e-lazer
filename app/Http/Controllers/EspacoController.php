@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Espaco;
 use App\Models\Cidade;
+use App\Models\Categoria; // ✅ CORRIGIDO
 use Illuminate\Http\Request;
 
 class EspacoController extends Controller
@@ -20,16 +21,19 @@ class EspacoController extends Controller
     // FORMULÁRIO DE CRIAÇÃO
     public function create(Request $request)
     {
-        $cidade = Cidade::findOrFail($request->cidade_id);
-        return view('espacos.create', compact('cidade'));
+        $categorias = Categoria::all();
+        $cidade = Cidade::findOrFail($request->cidade_id); // ✅ AQUI
+
+        return view('espacos.create', compact('categorias', 'cidade'));
     }
 
     // SALVAR NOVO ESPAÇO
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'titulo' => 'required|string|max:255',
+            'nome' => 'required|string|max:255', // ✅ PADRONIZADO
             'cidade_id' => 'required|exists:cidades,id',
+            'categoria_id' => 'nullable|exists:categorias,id',
             'descricao' => 'nullable|string',
             'horario_abertura' => 'nullable',
             'horario_encerramento' => 'nullable',
@@ -43,30 +47,35 @@ class EspacoController extends Controller
             'responsavel' => 'nullable|string|max:255',
         ]);
 
-        // Valores padrão caso não sejam preenchidos
+        // valores padrão
         $validated['periodo_max_reserva'] = $validated['periodo_max_reserva'] ?? 0;
         $validated['min_participantes'] = $validated['min_participantes'] ?? 0;
         $validated['max_participantes'] = $validated['max_participantes'] ?? 0;
 
-        $espaco = Espaco::create($validated);
+        Espaco::create($validated);
 
         return redirect()->route('espacos.index', ['cidade_id' => $request->cidade_id])
             ->with('success', 'Espaço criado com sucesso!');
     }
 
     // FORMULÁRIO DE EDIÇÃO
-    public function edit(Espaco $espaco)
+    public function edit($id)
     {
-        $cidades = Cidade::all();
-        return view('espacos.edit', compact('espaco', 'cidades'));
+        $espaco = Espaco::findOrFail($id);
+        $categorias = Categoria::all();
+
+        return view('espacos.edit', compact('espaco', 'categorias'));
     }
 
     // ATUALIZAR ESPAÇO
-    public function update(Request $request, Espaco $espaco)
+    public function update(Request $request, $id)
     {
+        $espaco = Espaco::findOrFail($id);
+
         $validated = $request->validate([
-            'titulo' => 'required|string|max:255',
+            'nome' => 'required|string|max:255',
             'cidade_id' => 'required|exists:cidades,id',
+            'categoria_id' => 'nullable|exists:categorias,id',
             'descricao' => 'nullable|string',
             'horario_abertura' => 'nullable',
             'horario_encerramento' => 'nullable',
@@ -90,20 +99,34 @@ class EspacoController extends Controller
             ->with('success', 'Espaço atualizado com sucesso!');
     }
 
-    // EXCLUIR ESPAÇO
-    public function destroy(Espaco $espaco)
+    // EXCLUIR
+    public function destroy($id)
     {
+        $espaco = Espaco::findOrFail($id);
         $cidade_id = $espaco->cidade_id;
+
         $espaco->delete();
 
         return redirect()->route('espacos.index', ['cidade_id' => $cidade_id])
             ->with('success', 'Espaço excluído com sucesso!');
     }
 
-    // LISTAR ESPAÇOS POR ÁREA (opcional, se ainda usar)
-    public function indexPorArea($area_id)
+    // BUSCA DE ESPAÇOS
+    public function buscar(Request $request)
     {
-        // Se não houver mais áreas, você pode remover este método
-        // ou deixar caso queira filtrar por categoria futura
+        $query = Espaco::query();
+
+        if ($request->nome) {
+            $query->where('nome', 'like', '%' . $request->nome . '%');
+        }
+
+        if ($request->categoria_id) {
+            $query->where('categoria_id', $request->categoria_id);
+        }
+
+        $espacos = $query->get();
+        $categorias = Categoria::all();
+
+        return view('espacos.busca', compact('espacos', 'categorias'));
     }
 }

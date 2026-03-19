@@ -12,7 +12,11 @@ return new class extends Migration
     public function up(): void
 {
     Schema::create('espacos', function (Blueprint $table) {
+        $table->foreignId('categoria_id')->nullable()->constrained()->nullOnDelete();
+
         $table->id();
+
+        $table->foreignId('categoria_id')->nullable()->constrained()->nullOnDelete();
 
         $table->foreignId('cidade_id')->constrained()->onDelete('cascade');
 

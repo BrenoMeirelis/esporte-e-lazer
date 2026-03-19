@@ -11,6 +11,7 @@ class Espaco extends Model
     use HasFactory;
 
     protected $fillable = [
+        'nome',
         'titulo',
         'descricao',
         'cidade_id',
@@ -25,6 +26,11 @@ class Espaco extends Model
         'materiais',
         'responsavel',
     ];
+
+    public function categoria()
+    {
+        return $this->belongsTo(Categoria::class);
+    }
 
     // Relacionamento com Cidade
     public function cidade()

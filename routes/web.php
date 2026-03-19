@@ -8,7 +8,14 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CidadeController;
 use App\Http\Controllers\EspacoController;
 use App\Http\Controllers\ReservaController;
+use App\Http\Controllers\CategoriaController;
 
+
+
+
+Route::get('/buscar-espacos', [EspacoController::class, 'buscar'])->name('espacos.buscar');
+Route::get('/buscar-cidades', [CidadeController::class, 'buscar'])->name('cidades.buscar');
+Route::resource('categorias', CategoriaController::class);
 /*
 |--------------------------------------------------------------------------
 | ROTAS PÚBLICAS

@@ -153,6 +153,19 @@
                     <button type="submit" class="btn btn-success">✔ Cadastrar Espaço</button>
                 </div>
 
+                <label>Categoria</label>
+
+                <select name="categoria_id" class="form-control">
+                    <option value="">Selecione</option>
+
+                    @foreach ($categorias as $categoria)
+                        <option value="{{ $categoria->id }}"
+                            {{ old('categoria_id', $espaco->categoria_id ?? '') == $categoria->id ? 'selected' : '' }}>
+                            {{ $categoria->nome }}
+                        </option>
+                    @endforeach
+                </select>
+
             </form>
         </div>
     </div>

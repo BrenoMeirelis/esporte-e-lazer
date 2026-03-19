@@ -110,4 +110,13 @@ class CidadeController extends Controller
         return redirect()->route('cidades.show', $cidade->id)
             ->with('success', 'Usuário adicionado com sucesso!');
     }
+
+    public function buscar(Request $request)
+{
+    $query = $request->q;
+
+    $cidades = Cidade::where('nome', 'like', "%$query%")->get();
+
+    return view('cidades.busca', compact('cidades'));
+}
 }
