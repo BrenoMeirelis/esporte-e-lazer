@@ -3,15 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Categoria;
-use App\Models\Cidade; // ✅ CORRIGIDO
+use App\Models\Cidade;
 use Illuminate\Http\Request;
 
 class CategoriaController extends Controller
 {
-    public function index()
+    public function index(Request $request, Cidade $cidade)
     {
-        $categorias = Categoria::all();
-        return view('categorias.index', compact('categorias'));
+        if ($cidade)
+            $categorias = $cidade->categorias()->get();
+        else
+            $categorias = Categoria::all(); // TODAS
+
+        return view('categorias.index', compact('categorias', 'cidade'));
     }
 
     public function create()
@@ -27,39 +31,41 @@ class CategoriaController extends Controller
             'cidade_id' => 'required|exists:cidades,id'
         ]);
 
-        Categoria::create($request->all());
+        Categoria::create($request->only(['nome', 'cidade_id']));
 
         return redirect()->route('categorias.index')
             ->with('success', 'Categoria criada com sucesso!');
     }
 
-    public function edit($id)
+    public function edit(Categoria $categoria)
     {
-        $categoria = Categoria::findOrFail($id);
         $cidades = Cidade::all();
-
         return view('categorias.edit', compact('categoria', 'cidades'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Categoria $categoria)
     {
-        $categoria = Categoria::findOrFail($id);
-
         $request->validate([
             'nome' => 'required|string|max:255',
             'cidade_id' => 'required|exists:cidades,id'
         ]);
 
-        $categoria->update($request->all());
+        $categoria->update($request->only(['nome', 'cidade_id']));
 
         return redirect()->route('categorias.index')
             ->with('success', 'Categoria atualizada com sucesso!');
     }
 
-    public function destroy($id)
+    public function destroy(Categoria $categoria)
     {
-        Categoria::destroy($id);
-
-        return back()->with('success', 'Categoria excluída com sucesso!');
+        $categoria->delete();
+        return redirect()->route('categorias.index')
+            ->with('success', 'Categoria excluída com sucesso!');
     }
+
+    public function show(Categoria $categoria)
+    {
+        return view('categorias.show', compact('categoria'));
+    }
+
 }

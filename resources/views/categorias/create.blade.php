@@ -1,62 +1,50 @@
-<div class="container mt-5">
+@extends('layouts.app')
 
+@section('content')
+<div class="container mt-4">
     <div class="card shadow col-md-6 mx-auto border-0">
-
         <div class="card-header bg-success text-white">
             <h4 class="mb-0">Cadastrar Categoria</h4>
         </div>
-
         <div class="card-body">
+            @if(session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
 
             <form action="{{ route('categorias.store') }}" method="POST">
                 @csrf
 
-                <!-- NOME -->
+                {{-- Nome da categoria --}}
                 <div class="mb-3">
-                    <label class="form-label">Nome da Categoria</label>
-                    <input type="text" name="nome" class="form-control"
-                        value="{{ old('nome') }}" placeholder="Ex: Quadra, Salão...">
-
+                    <label for="nome" class="form-label">Nome da Categoria</label>
+                    <input type="text" name="nome" id="nome" class="form-control"
+                        value="{{ old('nome') }}" placeholder="Digite o nome da categoria">
                     @error('nome')
                         <div class="text-danger mt-1">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <!-- CIDADE -->
+                {{-- Seleção da cidade --}}
                 <div class="mb-3">
-                    <label class="form-label">Cidade</label>
-
-                    <select name="cidade_id" class="form-select">
-                        <option value="">Selecione uma cidade</option>
-
+                    <label for="cidade_id" class="form-label">Cidade</label>
+                    <select name="cidade_id" id="cidade_id" class="form-select">
+                        <option value="">-- Selecione uma cidade --</option>
                         @foreach($cidades as $cidade)
-                            <option value="{{ $cidade->id }}">
+                            <option value="{{ $cidade->id }}"
+                                {{ old('cidade_id') == $cidade->id ? 'selected' : '' }}>
                                 {{ $cidade->nome }}
                             </option>
                         @endforeach
                     </select>
-
                     @error('cidade_id')
                         <div class="text-danger mt-1">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <!-- BOTÕES -->
-                <div class="d-flex justify-content-between">
-
-                    <a href="{{ route('categorias.index') }}" class="btn btn-secondary">
-                        Voltar
-                    </a>
-
-                    <button type="submit" class="btn btn-success">
-                        Salvar Categoria
-                    </button>
-
-                </div>
-
+                <button type="submit" class="btn btn-success">Cadastrar</button>
+                <a href="{{ route('categorias.index') }}" class="btn btn-secondary">Voltar</a>
             </form>
-
         </div>
     </div>
-
 </div>
+@endsection

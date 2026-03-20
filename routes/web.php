@@ -15,7 +15,9 @@ use App\Http\Controllers\CategoriaController;
 
 Route::get('/buscar-espacos', [EspacoController::class, 'buscar'])->name('espacos.buscar');
 Route::get('/buscar-cidades', [CidadeController::class, 'buscar'])->name('cidades.buscar');
-Route::resource('categorias', CategoriaController::class);
+
+Route::get('categorias-cidade/{cidade?}', [CategoriaController::class, 'index'])->name('categorias.index');
+Route::resource('categorias', CategoriaController::class)->except(['index']);
 /*
 |--------------------------------------------------------------------------
 | ROTAS PÚBLICAS

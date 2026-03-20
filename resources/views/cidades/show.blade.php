@@ -39,6 +39,10 @@
         .nav-tabs .nav-link {
             font-weight: 600;
         }
+
+        .btn-categorias {
+            margin-top: 15px;
+        }
     </style>
 
     <div class="container mt-4">
@@ -140,7 +144,7 @@
             <div class="tab-pane fade" id="areas">
                 <div class="card card-painel">
                     <div class="card-body">
-                        <h5 class="mb-3">Espaços cadastrados</h5>
+                        <h5 class="mb-3">Categorias cadastradas</h5>
 
                         @forelse($cidade->espacos as $espaco)
                             <div class="mb-4">
@@ -151,8 +155,13 @@
                                 </a>
                             </div>
                         @empty
-                            <p class="text-muted">Nenhum espaço cadastrado</p>
+                            <p class="text-muted">Nenhuma categoria cadastrada</p>
                         @endforelse
+
+                        <!-- BOTÃO DE CATEGORIAS -->
+                        <a href="{{ route('categorias.index', $cidade->id) }}" class="btn btn-success btn-sm btn-categorias">
+                            📂 Gerenciar Categorias
+                        </a>
 
                     </div>
                 </div>

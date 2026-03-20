@@ -33,4 +33,9 @@ class Cidade extends Model
     {
         return $this->hasMany(Area::class);
     }
+
+    public function categorias()
+    {
+        return $this->hasMany(Categoria::class);
+    }
 }
