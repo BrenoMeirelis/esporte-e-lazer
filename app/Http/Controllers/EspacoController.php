@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Espaco;
 use App\Models\Cidade;
-use App\Models\Categoria; // ✅ CORRIGIDO
+use App\Models\Categoria;
 use Illuminate\Http\Request;
 
 class EspacoController extends Controller
 {
-    // LISTAR ESPAÇOS POR CIDADE
+    // LISTAR
     public function index($cidade_id)
     {
         $cidade = Cidade::findOrFail($cidade_id);
@@ -18,23 +18,25 @@ class EspacoController extends Controller
         return view('espacos.index', compact('espacos', 'cidade'));
     }
 
-    // FORMULÁRIO DE CRIAÇÃO
-    public function create($cidade_id)
+    // CREATE (AGORA FUNCIONA ✅)
+    public function create($cidade_id = null)
     {
-        // Busca a cidade
-        $cidade = Cidade::findOrFail($cidade_id);
+        // se não vier cidade → volta
+        if (!$cidade_id) {
+            return redirect()->route('cidades.index')
+                ->with('error', 'Selecione uma cidade primeiro');
+        }
 
-        // Busca apenas categorias dessa cidade
+        $cidade = Cidade::findOrFail($cidade_id);
         $categorias = Categoria::where('cidade_id', $cidade_id)->get();
 
-        // Retorna a view com cidade e categorias
         return view('espacos.create', compact('cidade', 'categorias'));
     }
 
-    // SALVAR NOVO ESPAÇO
+    // STORE (CORRIGIDO)
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'titulo' => 'required|string|max:255',
             'cidade_id' => 'required|exists:cidades,id',
             'categoria_id' => 'required|exists:categorias,id',
@@ -56,40 +58,41 @@ class EspacoController extends Controller
         $validated['min_participantes'] = $validated['min_participantes'] ?? 0;
         $validated['max_participantes'] = $validated['max_participantes'] ?? 0;
 
-        Espaco::create($request->all());
+        Espaco::create($validated);
 
-        // Redireciona para show da cidade, aba #areas
-        return redirect()->route('cidades.show', $request->cidade_id)
+        return redirect()->route('cidades.show', $validated['cidade_id'])
             ->with('success', 'Espaço cadastrado com sucesso!');
     }
 
-    // FORMULÁRIO DE EDIÇÃO
+    // EDIT
     public function edit($id)
     {
         $espaco = Espaco::findOrFail($id);
-        $categorias = Categoria::all();
+
+        // categorias da mesma cidade
+        $categorias = Categoria::where('cidade_id', $espaco->cidade_id)->get();
 
         return view('espacos.edit', compact('espaco', 'categorias'));
     }
 
-    // ATUALIZAR ESPAÇO
+    // UPDATE (CORRIGIDO)
     public function update(Request $request, $id)
     {
         $espaco = Espaco::findOrFail($id);
 
         $validated = $request->validate([
-            'nome' => 'required|string|max:255',
+            'titulo' => 'required|string|max:255', // ✅ corrigido
             'cidade_id' => 'required|exists:cidades,id',
-            'categoria_id' => 'nullable|exists:categorias,id',
+            'categoria_id' => 'required|exists:categorias,id',
             'descricao' => 'nullable|string',
-            'horario_abertura' => 'nullable',
-            'horario_encerramento' => 'nullable',
-            'periodo_max_reserva' => 'nullable|integer',
+            'horario_abertura' => 'nullable|date_format:H:i',
+            'horario_encerramento' => 'nullable|date_format:H:i',
+            'periodo_max_reserva' => 'nullable|integer|min:0',
             'localizacao' => 'nullable|string|max:255',
             'regras' => 'nullable|string',
             'observacoes' => 'nullable|string',
-            'min_participantes' => 'nullable|integer',
-            'max_participantes' => 'nullable|integer',
+            'min_participantes' => 'nullable|integer|min:0',
+            'max_participantes' => 'nullable|integer|min:0',
             'materiais' => 'nullable|string',
             'responsavel' => 'nullable|string|max:255',
         ]);
@@ -100,11 +103,11 @@ class EspacoController extends Controller
 
         $espaco->update($validated);
 
-        return redirect()->route('espacos.index', ['cidade_id' => $request->cidade_id])
+        return redirect()->route('espacos.index', ['cidade_id' => $validated['cidade_id']])
             ->with('success', 'Espaço atualizado com sucesso!');
     }
 
-    // EXCLUIR
+    // DELETE
     public function destroy($id)
     {
         $espaco = Espaco::findOrFail($id);
@@ -116,13 +119,13 @@ class EspacoController extends Controller
             ->with('success', 'Espaço excluído com sucesso!');
     }
 
-    // BUSCA DE ESPAÇOS
+    // BUSCA
     public function buscar(Request $request)
     {
         $query = Espaco::query();
 
-        if ($request->nome) {
-            $query->where('nome', 'like', '%' . $request->nome . '%');
+        if ($request->titulo) {
+            $query->where('titulo', 'like', '%' . $request->titulo . '%');
         }
 
         if ($request->categoria_id) {

@@ -8,16 +8,17 @@ use Illuminate\Http\Request;
 
 class CategoriaController extends Controller
 {
-    public function index(Request $request, Cidade $cidade)
+    public function index($cidade = null)
     {
-        if ($cidade)
-            $categorias = $cidade->categorias()->get();
-        else
-            $categorias = Categoria::all(); // TODAS
+        // Se vier cidade, filtra
+        if ($cidade) {
+            $categorias = Categoria::where('cidade_id', $cidade)->get();
+        } else {
+            $categorias = Categoria::all();
+        }
 
         return view('categorias.index', compact('categorias', 'cidade'));
     }
-
     public function create()
     {
         $cidades = Cidade::all();
@@ -67,5 +68,4 @@ class CategoriaController extends Controller
     {
         return view('categorias.show', compact('categoria'));
     }
-
 }

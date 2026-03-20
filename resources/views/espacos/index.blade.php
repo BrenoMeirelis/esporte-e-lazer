@@ -9,9 +9,6 @@
     <div class="hero-index" style="background: linear-gradient(135deg, #198754, #157347); color:white; padding:40px; border-radius:15px; text-align:center; margin-bottom:40px;">
         <h1>📍 Espaços de {{ $cidade->nome }}</h1>
         <p>Visualize, edite e gerencie os espaços disponíveis.</p>
-        <a href="{{ route('espacos.create', ['cidade_id' => $cidade->id]) }}" class="btn btn-light btn-lg mt-3">
-            + Cadastrar Novo Espaço
-        </a>
         <div class="mt-3">
             <a href="{{ route('cidades.show', $cidade->id) }}" class="btn btn-outline-light btn-sm">
                 ← Voltar para cidade
@@ -36,15 +33,7 @@
                     </div>
                     <div class="card-footer bg-white">
                         <a href="#" class="btn btn-primary btn-sm">Reservar</a>
-                        <a href="{{ route('espacos.edit', $espaco->id) }}" class="btn btn-warning btn-sm">Editar</a>
 
-                        <form action="{{ route('espacos.destroy', $espaco->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir este espaço?')">
-                                Excluir
-                            </button>
-                        </form>
                     </div>
                 </div>
             </div>

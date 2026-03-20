@@ -51,47 +51,36 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/cidades/{cidade}/adicionar-usuario', [CidadeController::class, 'adicionarUsuario'])
         ->name('cidades.adicionarUsuario');
 
-    /*
-    |--------------------------------------------------------------------------
-    | ESPAÇOS
-    |--------------------------------------------------------------------------
-    */
+    // ESPAÇOS
 
     // LISTAR ESPAÇOS POR CIDADE
     Route::get('/cidades/{cidade_id}/espacos', [EspacoController::class, 'index'])
-        ->name('espacos.index');
+    ->name('espacos.index');
 
-    // FORMULÁRIO DE CRIAÇÃO DE ESPAÇO (precisa de cidade_id)
-    Route::get('/espacos/create', [EspacoController::class, 'create'])
-        ->name('espacos.create');
+    // CREATE (AGORA FUNCIONA COM OU SEM PARÂMETRO)
+    Route::get('/espacos/create/{cidade_id?}', [EspacoController::class, 'create'])
+    ->name('espacos.create');
 
-    // SALVAR NOVO ESPAÇO
+    // STORE
     Route::post('/espacos', [EspacoController::class, 'store'])
-        ->name('espacos.store');
+    ->name('espacos.store');
 
-    // EDITAR ESPAÇO
+    // EDIT
     Route::get('/espacos/{espaco}/edit', [EspacoController::class, 'edit'])
-        ->name('espacos.edit');
+    ->name('espacos.edit');
 
-    // ATUALIZAR ESPAÇO
+    // UPDATE
     Route::put('/espacos/{espaco}', [EspacoController::class, 'update'])
-        ->name('espacos.update');
+    ->name('espacos.update');
 
-    // EXCLUIR ESPAÇO
+    // DELETE
     Route::delete('/espacos/{espaco}', [EspacoController::class, 'destroy'])
-        ->name('espacos.destroy');
+    ->name('espacos.destroy');
 
-    /*
-    |--------------------------------------------------------------------------
-    | RESERVAS
-    |--------------------------------------------------------------------------
-    */
-    Route::resource('reservas', ReservaController::class);
 
     Route::get('/calendario', [ReservaController::class, 'calendario'])
         ->name('reservas.calendario');
 
     Route::get('/eventos', [ReservaController::class, 'eventos'])
         ->name('reservas.eventos');
-
 });

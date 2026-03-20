@@ -39,10 +39,6 @@
         .nav-tabs .nav-link {
             font-weight: 600;
         }
-
-        .btn-categorias {
-            margin-top: 15px;
-        }
     </style>
 
     <div class="container mt-4">
@@ -60,20 +56,31 @@
             </div>
         @endif
 
-        <!-- TABS -->
-        <ul class="nav nav-tabs mb-4">
-            <li class="nav-item">
-                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#usuarios">
-                    👥 Usuários Autorizados
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#areas">
-                    🏟 Áreas da Cidade
-                </button>
-            </li>
-        </ul>
+        <!-- TOPO COM TABS + BOTÃO -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
 
+            <!-- TABS -->
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#usuarios">
+                        👥 Usuários Autorizados
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#areas">
+                        🏟 Áreas da Cidade
+                    </button>
+                </li>
+            </ul>
+
+            <!-- BOTÃO NOVO ESPAÇO -->
+            <a href="{{ route('espacos.create', ['cidade_id' => $cidade->id]) }}" class="btn btn-success btn-sm">
+                + Novo Espaço
+            </a>
+
+        </div>
+
+        <!-- CONTEÚDO DAS TABS -->
         <div class="tab-content">
 
             <!-- USUÁRIOS -->
@@ -144,22 +151,27 @@
             <div class="tab-pane fade" id="areas">
                 <div class="card card-painel">
                     <div class="card-body">
-                        <h5 class="mb-3">Categorias cadastradas</h5>
+
+                        <h5 class="mb-3">Espaços cadastrados</h5>
 
                         @forelse($cidade->espacos as $espaco)
                             <div class="mb-4">
                                 <h6>📍 {{ $espaco->titulo }}</h6>
                                 <p>{{ $espaco->descricao }}</p>
-                                <a href="{{ route('espacos.edit', $espaco->id) }}" class="btn btn-sm btn-primary">
-                                    Editar
-                                </a>
+
+                                <div class="d-flex gap-2">
+                                    <a href="{{ route('espacos.edit', $espaco->id) }}" class="btn btn-sm btn-primary">
+                                        Editar
+                                    </a>
+                                </div>
                             </div>
                         @empty
-                            <p class="text-muted">Nenhuma categoria cadastrada</p>
+                            <p class="text-muted">Nenhum espaço cadastrado</p>
                         @endforelse
 
-                        <!-- BOTÃO DE CATEGORIAS -->
-                        <a href="{{ route('categorias.index', $cidade->id) }}" class="btn btn-success btn-sm btn-categorias">
+                        <!-- BOTÃO CATEGORIAS -->
+                        <a href="{{ route('categorias.index', ['cidade' => $cidade->id]) }}"
+                            class="btn btn-outline-success btn-sm mt-3">
                             📂 Gerenciar Categorias
                         </a>
 

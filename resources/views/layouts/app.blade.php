@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,18 +13,19 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <style>
-        /* Navbar hover efeito */
         .navbar-nav .nav-link:hover {
-            color: #198754 !important; /* verde bootstrap */
+            color: #198754 !important;
         }
+
         .btn-link.nav-link:hover {
-            color: #dc3545 !important; /* vermelho para Sair */
+            color: #dc3545 !important;
         }
     </style>
 </head>
+
 <body>
 
-    {{-- Navbar --}}
+    {{-- NAVBAR --}}
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container">
             <a class="navbar-brand fw-bold" href="{{ url('/') }}">
@@ -35,7 +37,10 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
+
+                {{-- MENU ESQUERDA --}}
                 <ul class="navbar-nav me-auto">
+
                     {{-- Home --}}
                     <li class="nav-item">
                         <a class="nav-link d-flex align-items-center" href="{{ route('home') }}">
@@ -43,56 +48,74 @@
                         </a>
                     </li>
 
-                    {{-- Usuários --}}
-                    <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center" href="{{ route('users.index') }}">
-                            <i class="bi bi-people-fill me-1"></i> Usuários
-                        </a>
-                    </li>
+                    {{-- Usuários (apenas logado) --}}
+                    @auth
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" href="{{ route('users.index') }}">
+                                <i class="bi bi-people-fill me-1"></i> Usuários
+                            </a>
+                        </li>
 
-                    {{-- Criar Usuário --}}
-                    <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center" href="{{ route('users.create') }}">
-                            <i class="bi bi-person-plus-fill me-1"></i> Criar Usuário
-                        </a>
-                    </li>
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" href="{{ route('users.create') }}">
+                                <i class="bi bi-person-plus-fill me-1"></i> Criar Usuário
+                            </a>
+                        </li>
+                    @endauth
 
                     {{-- Espaços --}}
-                    <li class="nav-item">
-                        @php
-                            // Use a primeira cidade como default se existir
-                            $cidadeDefault = \App\Models\Cidade::first();
-                        @endphp
-                        @if($cidadeDefault)
-                            <a class="nav-link d-flex align-items-center" href="{{ route('espacos.index', ['cidade_id' => $cidadeDefault->id]) }}">
+                    @php
+                        $cidadeDefault = \App\Models\Cidade::first();
+                    @endphp
+
+                    @if ($cidadeDefault)
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center"
+                                href="{{ route('espacos.index', ['cidade_id' => $cidadeDefault->id]) }}">
                                 <i class="bi bi-building me-1"></i> Espaços
                             </a>
-                        @else
+                        </li>
+                    @else
+                        <li class="nav-item">
                             <span class="nav-link text-muted d-flex align-items-center">
                                 <i class="bi bi-building me-1"></i> Espaços
                             </span>
-                        @endif
-                    </li>
+                        </li>
+                    @endif
 
-                    {{-- Reservas --}}
-                    <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center" href="{{ route('reservas.index') }}">
-                            <i class="bi bi-calendar-check-fill me-1"></i> Reservas
-                        </a>
-                    </li>
+                    {{-- Reservas (CORRIGIDO ✅) --}}
+                    @auth
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" href="{{ route('reservas.index') }}">
+                                <i class="bi bi-calendar-check-fill me-1"></i> Reservas
+                            </a>
+                        </li>
+                    @endauth
 
                     {{-- Cidades --}}
-                    <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center" href="{{ route('cidades.index') }}">
-                            <i class="bi bi-geo-alt-fill me-1"></i> Cidades
-                        </a>
-                    </li>
+                    @auth
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" href="{{ route('cidades.index') }}">
+                                <i class="bi bi-geo-alt-fill me-1"></i> Cidades
+                            </a>
+                        </li>
+                    @endauth
+
                 </ul>
 
-                {{-- Links à direita --}}
+                {{-- MENU DIREITA --}}
                 <ul class="navbar-nav ms-auto">
+
                     @auth
-                        {{-- Sair --}}
+                        {{-- Usuário logado --}}
+                        <li class="nav-item">
+                            <span class="nav-link text-white">
+                                <i class="bi bi-person-circle me-1"></i>
+                                {{ auth()->user()->name }}
+                            </span>
+                        </li>
+
+                        {{-- Logout --}}
                         <li class="nav-item">
                             <form method="POST" action="{{ route('logout') }}" class="d-inline">
                                 @csrf
@@ -111,27 +134,29 @@
                             </a>
                         </li>
                     @endguest
+
                 </ul>
             </div>
         </div>
     </nav>
 
-    {{-- Conteúdo --}}
+    {{-- CONTEÚDO --}}
     <main class="py-4">
         <div class="container">
             @yield('content')
         </div>
     </main>
 
-    {{-- Footer --}}
+    {{-- FOOTER --}}
     <footer class="bg-light text-center py-3 mt-5">
         <small>
             &copy; {{ date('Y') }} {{ config('app.name', 'Sistema') }} - Todos os direitos reservados
         </small>
     </footer>
 
-    {{-- Bootstrap 5 JS --}}
+    {{-- Bootstrap JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
+
 </html>
