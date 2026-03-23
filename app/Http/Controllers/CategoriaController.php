@@ -10,14 +10,22 @@ class CategoriaController extends Controller
 {
     public function index($cidade = null)
     {
-        // Se vier cidade, filtra
+        $cidadeObj = null;
+
         if ($cidade) {
+            // Busca a cidade como objeto
+            $cidadeObj = Cidade::find($cidade);
+
+            // Filtra categorias pela cidade
             $categorias = Categoria::where('cidade_id', $cidade)->get();
         } else {
             $categorias = Categoria::all();
         }
 
-        return view('categorias.index', compact('categorias', 'cidade'));
+        return view('categorias.index', [
+            'categorias' => $categorias,
+            'cidade' => $cidadeObj
+        ]);
     }
     public function create()
     {

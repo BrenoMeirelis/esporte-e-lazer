@@ -25,138 +25,142 @@
 
 <body>
 
-    {{-- NAVBAR --}}
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url('/') }}">
-                {{ config('app.name', 'Sistema') }}
-            </a>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="{{ url('/') }}">
+            {{ config('app.name', 'Sistema') }}
+        </a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-            <div class="collapse navbar-collapse" id="navbarNav">
+        <div class="collapse navbar-collapse" id="navbarNav">
 
-                {{-- MENU ESQUERDA --}}
-                <ul class="navbar-nav me-auto">
+            {{-- MENU ESQUERDA --}}
+            <ul class="navbar-nav me-auto">
 
-                    {{-- Home --}}
+                {{-- Home --}}
+                @if(Route::has('home'))
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center" href="{{ route('home') }}">
+                        <i class="bi bi-house-door-fill me-1"></i> Home
+                    </a>
+                </li>
+                @endif
+
+                {{-- Usuários --}}
+                @auth
+                    @if(Route::has('users.index'))
                     <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center" href="{{ route('home') }}">
-                            <i class="bi bi-house-door-fill me-1"></i> Home
+                        <a class="nav-link d-flex align-items-center" href="{{ route('users.index') }}">
+                            <i class="bi bi-people-fill me-1"></i> Usuários
                         </a>
                     </li>
-
-                    {{-- Usuários (apenas logado) --}}
-                    @auth
-                        <li class="nav-item">
-                            <a class="nav-link d-flex align-items-center" href="{{ route('users.index') }}">
-                                <i class="bi bi-people-fill me-1"></i> Usuários
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link d-flex align-items-center" href="{{ route('users.create') }}">
-                                <i class="bi bi-person-plus-fill me-1"></i> Criar Usuário
-                            </a>
-                        </li>
-                    @endauth
-
-                    {{-- Espaços --}}
-                    @php
-                        $cidadeDefault = \App\Models\Cidade::first();
-                    @endphp
-
-                    @if ($cidadeDefault)
-                        <li class="nav-item">
-                            <a class="nav-link d-flex align-items-center"
-                                href="{{ route('espacos.index', ['cidade_id' => $cidadeDefault->id]) }}">
-                                <i class="bi bi-building me-1"></i> Espaços
-                            </a>
-                        </li>
-                    @else
-                        <li class="nav-item">
-                            <span class="nav-link text-muted d-flex align-items-center">
-                                <i class="bi bi-building me-1"></i> Espaços
-                            </span>
-                        </li>
                     @endif
 
-                    {{-- Reservas (CORRIGIDO ✅) --}}
-                    @auth
-                        <li class="nav-item">
-                            <a class="nav-link d-flex align-items-center" href="{{ route('reservas.index') }}">
-                                <i class="bi bi-calendar-check-fill me-1"></i> Reservas
-                            </a>
-                        </li>
-                    @endauth
+                    @if(Route::has('users.create'))
+                    <li class="nav-item">
+                        <a class="nav-link d-flex align-items-center" href="{{ route('users.create') }}">
+                            <i class="bi bi-person-plus-fill me-1"></i> Criar Usuário
+                        </a>
+                    </li>
+                    @endif
+                @endauth
 
-                    {{-- Cidades --}}
-                    @auth
-                        <li class="nav-item">
-                            <a class="nav-link d-flex align-items-center" href="{{ route('cidades.index') }}">
-                                <i class="bi bi-geo-alt-fill me-1"></i> Cidades
-                            </a>
-                        </li>
-                    @endauth
+                {{-- Espaços --}}
+                @php
+                    $cidadeDefault = \App\Models\Cidade::first();
+                @endphp
 
-                </ul>
+                @if ($cidadeDefault && Route::has('espacos.index'))
+                    <li class="nav-item">
+                        <a class="nav-link d-flex align-items-center"
+                           href="{{ route('espacos.index', ['cidade_id' => $cidadeDefault->id]) }}">
+                            <i class="bi bi-building me-1"></i> Espaços
+                        </a>
+                    </li>
+                @else
+                    <li class="nav-item">
+                        <span class="nav-link text-muted d-flex align-items-center">
+                            <i class="bi bi-building me-1"></i> Espaços
+                        </span>
+                    </li>
+                @endif
 
-                {{-- MENU DIREITA --}}
-                <ul class="navbar-nav ms-auto">
+                {{-- Reservas --}}
+                @auth
+                    @if(Route::has('reservas.index'))
+                    <li class="nav-item">
+                        <a class="nav-link d-flex align-items-center" href="{{ route('reservas.index') }}">
+                            <i class="bi bi-calendar-check-fill me-1"></i> Reservas
+                        </a>
+                    </li>
+                    @endif
+                @endauth
 
-                    @auth
-                        {{-- Usuário logado --}}
-                        <li class="nav-item">
-                            <span class="nav-link text-white">
-                                <i class="bi bi-person-circle me-1"></i>
-                                {{ auth()->user()->name }}
-                            </span>
-                        </li>
+                {{-- Cidades --}}
+                @auth
+                    @if(Route::has('cidades.index'))
+                    <li class="nav-item">
+                        <a class="nav-link d-flex align-items-center" href="{{ route('cidades.index') }}">
+                            <i class="bi bi-geo-alt-fill me-1"></i> Cidades
+                        </a>
+                    </li>
+                    @endif
+                @endauth
 
-                        {{-- Logout --}}
-                        <li class="nav-item">
-                            <form method="POST" action="{{ route('logout') }}" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-link nav-link d-flex align-items-center p-0">
-                                    <i class="bi bi-box-arrow-right me-1"></i> Sair
-                                </button>
-                            </form>
-                        </li>
-                    @endauth
+            </ul>
 
-                    @guest
-                        {{-- Login --}}
-                        <li class="nav-item">
-                            <a class="nav-link d-flex align-items-center" href="{{ route('login') }}">
-                                <i class="bi bi-box-arrow-in-right me-1"></i> Login
-                            </a>
-                        </li>
-                    @endguest
+            {{-- MENU DIREITA --}}
+            <ul class="navbar-nav ms-auto">
 
-                </ul>
-            </div>
+                @auth
+                    <li class="nav-item">
+                        <span class="nav-link text-white">
+                            <i class="bi bi-person-circle me-1"></i>
+                            {{ auth()->user()->name }}
+                        </span>
+                    </li>
+
+                    <li class="nav-item">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="btn btn-link nav-link d-flex align-items-center p-0">
+                                <i class="bi bi-box-arrow-right me-1"></i> Sair
+                            </button>
+                        </form>
+                    </li>
+                @endauth
+
+                @guest
+                    @if(Route::has('login'))
+                    <li class="nav-item">
+                        <a class="nav-link d-flex align-items-center" href="{{ route('login') }}">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                        </a>
+                    </li>
+                    @endif
+                @endguest
+
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    {{-- CONTEÚDO --}}
-    <main class="py-4">
-        <div class="container">
-            @yield('content')
-        </div>
-    </main>
+<main class="py-4">
+    <div class="container">
+        @yield('content')
+    </div>
+</main>
 
-    {{-- FOOTER --}}
-    <footer class="bg-light text-center py-3 mt-5">
-        <small>
-            &copy; {{ date('Y') }} {{ config('app.name', 'Sistema') }} - Todos os direitos reservados
-        </small>
-    </footer>
+<footer class="bg-light text-center py-3 mt-5">
+    <small>
+        &copy; {{ date('Y') }} {{ config('app.name', 'Sistema') }} - Todos os direitos reservados
+    </small>
+</footer>
 
-    {{-- Bootstrap JS --}}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
-
 </html>
