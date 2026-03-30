@@ -58,6 +58,7 @@
                         </a>
                     </li>
                     @endif
+                    @endauth
 
                     @if(Route::has('users.create'))
                     <li class="nav-item">
@@ -66,7 +67,6 @@
                         </a>
                     </li>
                     @endif
-                @endauth
 
                 {{-- Espaços --}}
                 @php
@@ -76,7 +76,7 @@
                 @if ($cidadeDefault && Route::has('espacos.index'))
                     <li class="nav-item">
                         <a class="nav-link d-flex align-items-center"
-                           href="{{ route('espacos.index', ['cidade_id' => $cidadeDefault->id]) }}">
+                            href="{{ route('espacos.index', ['cidade_id' => $cidadeDefault->id]) }}">
                             <i class="bi bi-building me-1"></i> Espaços
                         </a>
                     </li>
