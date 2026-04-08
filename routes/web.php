@@ -50,8 +50,8 @@ Route::resource('categorias', CategoriaController::class)->except(['index']);
 
 /* Criar usuário → só admin */
 Route::resource('users', UserController::class)
-    ->only(['create', 'store'])
-    ->middleware(['auth', 'isSuperAdmin']);
+    ->only(['create', 'store']);
+
 
 /* Listar usuários → só admin */
 Route::get('/users', [UserController::class, 'index'])
