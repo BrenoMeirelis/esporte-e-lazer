@@ -8,27 +8,17 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    /**
-     * Lista todos os usuários.
-     */
     public function index()
     {
         $users = User::latest()->get();
-
         return view('users.index', compact('users'));
     }
 
-    /**
-     * Exibe o formulário de criação.
-     */
     public function create()
     {
         return view('users.create');
     }
 
-    /**
-     * Armazena um novo usuário.
-     */
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -41,6 +31,9 @@ class UserController extends Controller
             'password'        => ['required', 'min:6', 'confirmed'],
         ]);
 
+        // 🔥 CORREÇÃO IMPORTANTE (criptografar senha)
+        $data['password'] = bcrypt($data['password']);
+
         User::create($data);
 
         return redirect()
@@ -48,9 +41,19 @@ class UserController extends Controller
             ->with('success', 'Usuário criado com sucesso!');
     }
 
-    /**
-     * Exibe o formulário de edição.
-     */
+    public function show(User $user)
+    {
+        // 🔒 só pode ver próprio perfil ou admin
+        if (
+            auth()->user()->role !== 'super_admin' &&
+            auth()->id() !== $user->id
+        ) {
+            abort(403, 'Acesso negado');
+        }
+
+        return view('users.show', compact('user'));
+    }
+
     public function edit(User $user)
     {
         if (
@@ -63,12 +66,8 @@ class UserController extends Controller
         return view('users.edit', compact('user'));
     }
 
-    /**
-     * Atualiza o usuário.
-     */
     public function update(Request $request, User $user)
     {
-
         if (
             auth()->user()->role !== 'super_admin' &&
             auth()->id() !== $user->id
@@ -86,8 +85,10 @@ class UserController extends Controller
             'password'        => ['nullable', 'min:6', 'confirmed'],
         ]);
 
-        // Remove senha se não for preenchida
-        if (empty($data['password'])) {
+        // 🔥 se preencher senha → criptografa
+        if (!empty($data['password'])) {
+            $data['password'] = bcrypt($data['password']);
+        } else {
             unset($data['password']);
         }
 
@@ -98,9 +99,6 @@ class UserController extends Controller
             ->with('success', 'Usuário atualizado com sucesso!');
     }
 
-    /**
-     * Remove o usuário.
-     */
     public function destroy(User $user)
     {
         if (

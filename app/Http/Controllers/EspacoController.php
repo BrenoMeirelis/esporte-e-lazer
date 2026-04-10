@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 
 class EspacoController extends Controller
 {
-    // LISTAR
     public function index($cidade_id)
     {
         $cidade = Cidade::findOrFail($cidade_id);
@@ -18,10 +17,8 @@ class EspacoController extends Controller
         return view('espacos.index', compact('espacos', 'cidade'));
     }
 
-    // CREATE (AGORA FUNCIONA ✅)
     public function create($cidade_id = null)
     {
-        // se não vier cidade → volta
         if (!$cidade_id) {
             return redirect()->route('cidades.index')
                 ->with('error', 'Selecione uma cidade primeiro');
@@ -33,7 +30,6 @@ class EspacoController extends Controller
         return view('espacos.create', compact('cidade', 'categorias'));
     }
 
-    // STORE (CORRIGIDO)
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -53,7 +49,6 @@ class EspacoController extends Controller
             'responsavel' => 'nullable|string|max:255',
         ]);
 
-        // valores padrão
         $validated['periodo_max_reserva'] = $validated['periodo_max_reserva'] ?? 0;
         $validated['min_participantes'] = $validated['min_participantes'] ?? 0;
         $validated['max_participantes'] = $validated['max_participantes'] ?? 0;
@@ -64,24 +59,20 @@ class EspacoController extends Controller
             ->with('success', 'Espaço cadastrado com sucesso!');
     }
 
-    // EDIT
     public function edit($id)
     {
         $espaco = Espaco::findOrFail($id);
-
-        // categorias da mesma cidade
         $categorias = Categoria::where('cidade_id', $espaco->cidade_id)->get();
 
         return view('espacos.edit', compact('espaco', 'categorias'));
     }
 
-    // UPDATE (CORRIGIDO)
     public function update(Request $request, $id)
     {
         $espaco = Espaco::findOrFail($id);
 
         $validated = $request->validate([
-            'titulo' => 'required|string|max:255', // ✅ corrigido
+            'titulo' => 'required|string|max:255',
             'cidade_id' => 'required|exists:cidades,id',
             'categoria_id' => 'required|exists:categorias,id',
             'descricao' => 'nullable|string',
@@ -107,7 +98,6 @@ class EspacoController extends Controller
             ->with('success', 'Espaço atualizado com sucesso!');
     }
 
-    // DELETE
     public function destroy($id)
     {
         $espaco = Espaco::findOrFail($id);
@@ -119,7 +109,6 @@ class EspacoController extends Controller
             ->with('success', 'Espaço excluído com sucesso!');
     }
 
-    // BUSCA
     public function buscar(Request $request)
     {
         $query = Espaco::query();

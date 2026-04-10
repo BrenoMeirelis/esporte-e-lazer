@@ -23,11 +23,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'cpf',
         'telefone',
         'data_nascimento',
-        'tipo',
+        'tipo', // 👈 usa só isso
         'email',
         'password',
-        'role' // 👈 ADICIONA ISSO
     ];
+
     /**
      * The attributes that should be hidden for serialization.
      *

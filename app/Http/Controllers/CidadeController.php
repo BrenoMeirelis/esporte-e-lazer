@@ -8,20 +8,17 @@ use Illuminate\Http\Request;
 
 class CidadeController extends Controller
 {
-    // LISTAR CIDADES
     public function index()
     {
         $cidades = Cidade::all();
         return view('cidades.index', compact('cidades'));
     }
 
-    // FORMULÁRIO DE CRIAÇÃO
     public function create()
     {
         return view('cidades.create');
     }
 
-    // SALVAR NOVA CIDADE
     public function store(Request $request)
     {
         $request->validate([
@@ -37,35 +34,22 @@ class CidadeController extends Controller
             ->with('success', 'Cidade cadastrada com sucesso!');
     }
 
-    // SHOW DA CIDADE (com usuários e áreas)
     public function show($id)
     {
-        $cidade = Cidade::with('areas')->findOrFail($id);
-
-        // Buscar todos os usuários (pode ajustar se tiver relacionamento específico)
-        $usuarios = User::all();
-
-        // Se houver busca, captura a query (opcional)
-        $search = request('search', '');
-
-        return view('cidades.show', compact('cidade', 'usuarios', 'search'));
+        // 🔥 CORRIGIDO AQUI
         $cidade = Cidade::with('espacos')->findOrFail($id);
 
-        $usuarios = User::all(); // ou filtre como antes
-        $search = request('search'); // se estiver usando pesquisa
+        $usuarios = User::all();
+        $search = request('search', '');
 
         return view('cidades.show', compact('cidade', 'usuarios', 'search'));
     }
 
-
-
-    // FORMULÁRIO DE EDIÇÃO
     public function edit(Cidade $cidade)
     {
         return view('cidades.edit', compact('cidade'));
     }
 
-    // ATUALIZAR CIDADE
     public function update(Request $request, Cidade $cidade)
     {
         $request->validate([
@@ -81,8 +65,6 @@ class CidadeController extends Controller
             ->with('success', 'Cidade atualizada com sucesso!');
     }
 
-
-    // EXCLUIR CIDADE
     public function destroy(Cidade $cidade)
     {
         $cidade->delete();
@@ -91,7 +73,6 @@ class CidadeController extends Controller
             ->with('success', 'Cidade excluída com sucesso!');
     }
 
-    // BUSCAR USUÁRIOS (API ou AJAX)
     public function buscarUsuarios(Request $request)
     {
         $usuarios = User::where('name', 'like', '%' . $request->busca . '%')
@@ -102,7 +83,6 @@ class CidadeController extends Controller
         return response()->json($usuarios);
     }
 
-    // ADICIONAR USUÁRIO AUTORIZADO
     public function adicionarUsuario(Request $request, Cidade $cidade)
     {
         $cidade->usuarios()->attach($request->usuario_id);
@@ -112,11 +92,11 @@ class CidadeController extends Controller
     }
 
     public function buscar(Request $request)
-{
-    $query = $request->q;
+    {
+        $query = $request->q;
 
-    $cidades = Cidade::where('nome', 'like', "%$query%")->get();
+        $cidades = Cidade::where('nome', 'like', "%$query%")->get();
 
-    return view('cidades.busca', compact('cidades'));
-}
+        return view('cidades.busca', compact('cidades'));
+    }
 }

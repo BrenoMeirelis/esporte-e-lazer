@@ -1,4 +1,3 @@
-<!-- resources/views/cidades/show.blade.php -->
 @extends('layouts.app')
 
 @section('content')
@@ -35,10 +34,6 @@
         .table td {
             vertical-align: middle;
         }
-
-        .nav-tabs .nav-link {
-            font-weight: 600;
-        }
     </style>
 
     <div class="container mt-4">
@@ -56,31 +51,33 @@
             </div>
         @endif
 
-        <!-- TOPO COM TABS + BOTÃO -->
         <div class="d-flex justify-content-between align-items-center mb-3">
 
             <!-- TABS -->
             <ul class="nav nav-tabs">
                 <li class="nav-item">
                     <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#usuarios">
-                        👥 Usuários Autorizados
+                        👥 Usuários
                     </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#areas">
-                        🏟 Áreas da Cidade
+                        🏟 Espaços
                     </button>
                 </li>
             </ul>
 
-            <!-- BOTÃO NOVO ESPAÇO -->
-            <a href="{{ route('espacos.create', ['cidade_id' => $cidade->id]) }}" class="btn btn-success btn-sm">
-                + Novo Espaço
-            </a>
+            <!-- 🔥 BOTÃO SÓ ADMIN -->
+            @auth
+                @if (in_array(auth()->user()->role, ['admin', 'super_admin']))
+                    <a href="{{ route('espacos.create', ['cidade_id' => $cidade->id]) }}" class="btn btn-success btn-sm">
+                        + Novo Espaço
+                    </a>
+                @endif
+            @endauth
 
         </div>
 
-        <!-- CONTEÚDO DAS TABS -->
         <div class="tab-content">
 
             <!-- USUÁRIOS -->
@@ -88,24 +85,7 @@
                 <div class="card card-painel">
                     <div class="card-body">
 
-                        <h5 class="mb-3">Pesquisar Usuário</h5>
-                        <h6 class="small">
-                            Adicione ou remova usuários que podem configurar e aprovar reservas
-                        </h6>
-
-                        <form method="GET" action="{{ route('cidades.show', $cidade->id) }}">
-                            <div class="row mb-4">
-                                <div class="col-md-9">
-                                    <input type="text" name="search" class="form-control"
-                                        placeholder="Digite nome, email ou CPF" value="{{ $search }}">
-                                </div>
-                                <div class="col-md-3">
-                                    <button class="btn btn-success w-100">
-                                        🔎 Pesquisar
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
+                        <h5 class="mb-3">Usuários</h5>
 
                         <div class="table-responsive">
                             <table class="table table-hover">
@@ -117,19 +97,29 @@
                                         <th>Ação</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
                                     @forelse($usuarios as $usuario)
                                         <tr>
                                             <td>{{ $usuario->name }}</td>
                                             <td>{{ $usuario->email }}</td>
                                             <td>{{ $usuario->cpf }}</td>
+
                                             <td>
-                                                <form method="POST"
-                                                    action="{{ route('cidades.adicionarUsuario', $cidade->id) }}">
-                                                    @csrf
-                                                    <input type="hidden" name="usuario_id" value="{{ $usuario->id }}">
-                                                    <button class="btn btn-success btn-sm">Adicionar</button>
-                                                </form>
+                                                @auth
+                                                    @if (in_array(auth()->user()->role, ['admin', 'super_admin']))
+                                                        <form method="POST"
+                                                            action="{{ route('cidades.adicionarUsuario', $cidade->id) }}">
+                                                            @csrf
+                                                            <input type="hidden" name="usuario_id" value="{{ $usuario->id }}">
+                                                            <button class="btn btn-success btn-sm">
+                                                                Adicionar
+                                                            </button>
+                                                        </form>
+                                                    @else
+                                                        <span class="text-muted">Sem permissão</span>
+                                                    @endif
+                                                @endauth
                                             </td>
                                         </tr>
                                     @empty
@@ -140,6 +130,7 @@
                                         </tr>
                                     @endforelse
                                 </tbody>
+
                             </table>
                         </div>
 
@@ -147,7 +138,7 @@
                 </div>
             </div>
 
-            <!-- ÁREAS -->
+            <!-- ESPAÇOS -->
             <div class="tab-pane fade" id="areas">
                 <div class="card card-painel">
                     <div class="card-body">
@@ -159,21 +150,28 @@
                                 <h6>📍 {{ $espaco->titulo }}</h6>
                                 <p>{{ $espaco->descricao }}</p>
 
-                                <div class="d-flex gap-2">
-                                    <a href="{{ route('espacos.edit', $espaco->id) }}" class="btn btn-sm btn-primary">
-                                        Editar
-                                    </a>
-                                </div>
+                                <!-- 🔥 EDITAR SÓ ADMIN -->
+                                @auth
+                                    @if (in_array(auth()->user()->role, ['admin', 'super_admin']))
+                                        <a href="{{ route('espacos.edit', $espaco->id) }}" class="btn btn-sm btn-primary">
+                                            Editar
+                                        </a>
+                                    @endif
+                                @endauth
                             </div>
                         @empty
                             <p class="text-muted">Nenhum espaço cadastrado</p>
                         @endforelse
 
-                        <!-- BOTÃO CATEGORIAS -->
-                        <a href="{{ route('categorias.index', ['cidade' => $cidade->id]) }}"
-                            class="btn btn-outline-success btn-sm mt-3">
-                            📂 Gerenciar Categorias
-                        </a>
+                        <!-- 🔥 CATEGORIA SÓ ADMIN -->
+                        @auth
+                            @if (in_array(auth()->user()->role, ['admin', 'super_admin']))
+                                <a href="{{ route('categorias.index', ['cidade' => $cidade->id]) }}"
+                                    class="btn btn-outline-success btn-sm mt-3">
+                                    📂 Gerenciar Categorias
+                                </a>
+                            @endif
+                        @endauth
 
                     </div>
                 </div>
