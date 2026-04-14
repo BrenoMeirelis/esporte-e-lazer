@@ -66,7 +66,7 @@
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-2">
 
-                                            @if (auth()->user()->role === 'super_admin' || auth()->id() === $user->id)
+                                            @can('edit', $user)
                                                 <a href="{{ route('users.edit', $user) }}"
                                                     class="btn btn-sm btn-outline-warning rounded-pill px-3">
                                                     ✏ Editar
@@ -82,7 +82,7 @@
                                                         🗑 Excluir
                                                     </button>
                                                 </form>
-                                            @endif
+                                            @endcan
 
                                         </div>
                                     </td>

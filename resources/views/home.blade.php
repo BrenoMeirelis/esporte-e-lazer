@@ -152,7 +152,6 @@
             <h1>Prefeitura Municipal</h1>
             <p>Sistema moderno de reservas de espaços públicos. Campos de futebol, quadras esportivas, salões e áreas de
                 lazer disponíveis para toda a população.</p>
-            <a href="/calendario" class="btn btn-calendario">Ver calendário de reservas</a>
         </div>
 
         {{-- SERVIÇOS --}}

@@ -6,11 +6,16 @@ use App\Models\Espaco;
 use App\Models\Cidade;
 use App\Models\Categoria;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class EspacoController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index($cidade_id)
     {
+        $this->authorize('index', Espaco::class);
+
         $cidade = Cidade::findOrFail($cidade_id);
         $espacos = Espaco::where('cidade_id', $cidade_id)->get();
 
@@ -19,6 +24,8 @@ class EspacoController extends Controller
 
     public function create($cidade_id = null)
     {
+        $this->authorize('create', Espaco::class);
+
         if (!$cidade_id) {
             return redirect()->route('cidades.index')
                 ->with('error', 'Selecione uma cidade primeiro');
@@ -32,6 +39,8 @@ class EspacoController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', Espaco::class);
+
         $validated = $request->validate([
             'titulo' => 'required|string|max:255',
             'cidade_id' => 'required|exists:cidades,id',
@@ -59,17 +68,18 @@ class EspacoController extends Controller
             ->with('success', 'Espaço cadastrado com sucesso!');
     }
 
-    public function edit($id)
+    public function edit(Espaco $espaco)
     {
-        $espaco = Espaco::findOrFail($id);
+        $this->authorize('update', $espaco);
+
         $categorias = Categoria::where('cidade_id', $espaco->cidade_id)->get();
 
         return view('espacos.edit', compact('espaco', 'categorias'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Espaco $espaco)
     {
-        $espaco = Espaco::findOrFail($id);
+        $this->authorize('update', $espaco);
 
         $validated = $request->validate([
             'titulo' => 'required|string|max:255',
@@ -98,9 +108,10 @@ class EspacoController extends Controller
             ->with('success', 'Espaço atualizado com sucesso!');
     }
 
-    public function destroy($id)
+    public function destroy(Espaco $espaco)
     {
-        $espaco = Espaco::findOrFail($id);
+        $this->authorize('delete', $espaco);
+
         $cidade_id = $espaco->cidade_id;
 
         $espaco->delete();

@@ -37,17 +37,16 @@ Route::get('/buscar-cidades', [CidadeController::class, 'buscar'])->name('cidade
 | ROTAS PROTEGIDAS (USUÁRIO LOGADO)
 |--------------------------------------------------------------------------
 */
-
-Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+Route::middleware(['guest'])->group(function () {
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
-
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+});
 
 Route::middleware(['auth'])->group(function () {
-
     /* PERFIL */
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
@@ -74,7 +73,6 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth', 'admin'])->group(function () {
     /* USERS (sem duplicar rotas!) */
-
 
     /* CIDADES */
     Route::get('/cidades/create', [CidadeController::class, 'create'])->name('cidades.create');
