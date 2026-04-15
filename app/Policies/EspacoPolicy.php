@@ -8,6 +8,13 @@ use Illuminate\Auth\Access\Response;
 
 class EspacoPolicy
 {
+    public function before(User $user, $ability)
+    {
+        if (in_array($user->tipo, ['admin', 'super_admin'])) {
+            return true;
+        }
+    }
+
     public function index(User $user)
     {
         return Response::allow();
@@ -20,22 +27,16 @@ class EspacoPolicy
 
     public function create(User $user)
     {
-        return $user->tipo == 'admin'
-            ? Response::allow()
-            : Response::deny('Apenas admins podem criar espaços');
+        return Response::deny();
     }
 
     public function update(User $user, Espaco $espaco)
     {
-        return $user->tipo == 'admin'
-            ? Response::allow()
-            : Response::deny('Apenas admins podem editar espaços');
+        return Response::deny();
     }
 
     public function delete(User $user, Espaco $espaco)
     {
-        return $user->tipo == 'admin'
-            ? Response::allow()
-            : Response::deny('Apenas admins podem excluir espaços');
+        return Response::deny();
     }
 }

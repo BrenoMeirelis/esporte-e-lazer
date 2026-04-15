@@ -1,50 +1,40 @@
 <?php
 
 namespace App\Policies;
-use Illuminate\Auth\Access\Response;
 
+use Illuminate\Auth\Access\Response;
 use App\Models\User;
 
 class UserPolicy
 {
-    /**
-     * Create a new policy instance.
-     */
-    public function __construct()
+    public function before(User $user, $ability)
     {
-        //
+        if (in_array($user->tipo, ['admin', 'super_admin'])) {
+            return true;
+        }
     }
 
-    public function index($user)
+    public function index(User $user)
     {
-        if ($user->role == 'super_admin')
-            return Response::allow();
-        else
-            return Response::deny('Apenas administradores podem ter acesso a lista de usuários.');
-    }
-
-    public function edit($user, User $usuario)
-    {
-        if ($user->role == 'super_admin' || $user->is($usuario))
-            return Response::allow();
-        else
-            return Response::deny('Apenas administradores ou o dono do perfil tem acesso a edição');
-    }
-
-    public function show($user, User $usuario)
-    {
-        if ($user->role == 'super_admin' || $user->is($usuario))
-            return Response::allow();
-        else
-            return Response::deny('Apenas administradores ou o dono do perfil tem acesso ao perfil');
-    }
-
-    public function delete($user, User $usuario)
-{
-    if ($user->role == 'super_admin' || $user->is($usuario))
         return Response::allow();
-    else
-        return Response::deny('Sem permissão para excluir');
-}
+    }
 
+    public function edit(User $user, User $usuario)
+    {
+        return $user->is($usuario)
+            ? Response::allow()
+            : Response::deny('Sem permissão.');
+    }
+
+    public function show(User $user, User $usuario)
+    {
+        return $user->is($usuario)
+            ? Response::allow()
+            : Response::deny('Sem permissão.');
+    }
+
+    public function delete(User $user, User $usuario)
+    {
+        return Response::allow();
+    }
 }

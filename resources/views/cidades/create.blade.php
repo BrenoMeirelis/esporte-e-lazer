@@ -2,6 +2,7 @@
 
 @section('content')
 <div class="container">
+
     <h2>Cadastrar Cidade</h2>
 
     <form action="{{ route('cidades.store') }}" method="POST">
@@ -30,5 +31,6 @@
         <button type="submit" class="btn btn-success">Salvar</button>
         <a href="{{ route('cidades.index') }}" class="btn btn-secondary">Voltar</a>
     </form>
+
 </div>
 @endsection

@@ -5,8 +5,8 @@
         <h2>Lista de Cidades</h2>
 
         @auth
-            @if (in_array(auth()->user()->role, ['admin', 'super_admin']))
-                <a href="{{ route('cidades.create') }}" class="btn btn-primary">
+            @if (in_array(auth()->user()->tipo, ['admin', 'super_admin']))
+                <a href="{{ route('cidades.create') }}" class="btn btn-primary mb-3">
                     Nova Cidade
                 </a>
             @endif
@@ -40,18 +40,22 @@
                                 Ver
                             </a>
 
-                            <a class="btn btn-warning btn-sm" href="{{ route('cidades.edit', $cidade->id) }}">
-                                Editar
-                            </a>
+                            @if (in_array(auth()->user()->tipo, ['admin', 'super_admin']))
+                                <a class="btn btn-warning btn-sm"
+                                    href="{{ route('cidades.edit', $cidade->id) }}">
+                                    Editar
+                                </a>
 
-                            <form action="{{ route('cidades.destroy', $cidade->id) }}" method="POST"
-                                style="display:inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                    Excluir
-                                </button>
-                            </form>
+                                <form action="{{ route('cidades.destroy', $cidade->id) }}" method="POST"
+                                    style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        Excluir
+                                    </button>
+                                </form>
+                            @endif
+
                         </td>
                     </tr>
                 @endforeach

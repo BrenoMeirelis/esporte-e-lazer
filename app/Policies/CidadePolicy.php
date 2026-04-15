@@ -8,9 +8,17 @@ use Illuminate\Auth\Access\Response;
 
 class CidadePolicy
 {
+    // 🔥 LIBERA ADMIN GLOBAL
+    public function before(User $user, $ability)
+    {
+        if (in_array($user->tipo, ['admin', 'super_admin'])) {
+            return true;
+        }
+    }
+
     public function index(User $user)
     {
-        return Response::allow(); // todos logados podem ver
+        return Response::allow();
     }
 
     public function show(User $user, Cidade $cidade)
@@ -20,22 +28,16 @@ class CidadePolicy
 
     public function create(User $user)
     {
-        return $user->tipo == 'admin'
-            ? Response::allow()
-            : Response::deny('Apenas admins podem criar cidades');
+        return Response::deny(); // quem libera é o before()
     }
 
     public function update(User $user, Cidade $cidade)
     {
-        return $user->tipo == 'admin'
-            ? Response::allow()
-            : Response::deny('Apenas admins podem editar cidades');
+        return Response::deny();
     }
 
     public function delete(User $user, Cidade $cidade)
     {
-        return $user->tipo == 'admin'
-            ? Response::allow()
-            : Response::deny('Apenas admins podem excluir cidades');
+        return Response::deny();
     }
 }

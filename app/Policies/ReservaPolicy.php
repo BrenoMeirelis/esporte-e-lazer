@@ -8,6 +8,13 @@ use Illuminate\Auth\Access\Response;
 
 class ReservaPolicy
 {
+    public function before(User $user, $ability)
+    {
+        if (in_array($user->tipo, ['admin', 'super_admin'])) {
+            return true;
+        }
+    }
+
     public function index(User $user)
     {
         return Response::allow();
@@ -15,30 +22,27 @@ class ReservaPolicy
 
     public function show(User $user, Reserva $reserva)
     {
-        if ($user->tipo == 'admin' || $reserva->user_id == $user->id)
-            return Response::allow();
-
-        return Response::deny('Você não pode ver essa reserva');
+        return $reserva->user_id == $user->id
+            ? Response::allow()
+            : Response::deny();
     }
 
     public function create(User $user)
     {
-        return Response::allow(); // qualquer logado pode reservar
+        return Response::allow();
     }
 
     public function update(User $user, Reserva $reserva)
     {
-        if ($user->tipo == 'admin' || $reserva->user_id == $user->id)
-            return Response::allow();
-
-        return Response::deny('Você não pode editar essa reserva');
+        return $reserva->user_id == $user->id
+            ? Response::allow()
+            : Response::deny();
     }
 
     public function delete(User $user, Reserva $reserva)
     {
-        if ($user->tipo == 'admin' || $reserva->user_id == $user->id)
-            return Response::allow();
-
-        return Response::deny('Você não pode excluir essa reserva');
+        return $reserva->user_id == $user->id
+            ? Response::allow()
+            : Response::deny();
     }
 }

@@ -67,7 +67,7 @@ class UserController extends Controller
             'cpf'             => ['required', 'string', 'max:14', 'unique:users,cpf,' . $user->id],
             'telefone'        => ['required', 'string', 'max:20'],
             'data_nascimento' => ['required', 'date'],
-            'role'            => ['required', 'in:admin,usuario'],
+            'tipo'            => ['required', 'in:admin,usuario'],
             'email'           => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'password'        => ['nullable', 'min:6', 'confirmed'],
         ]);

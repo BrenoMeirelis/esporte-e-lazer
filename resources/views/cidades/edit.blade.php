@@ -2,6 +2,13 @@
 
 @section('content')
 <div class="container">
+
+    @auth
+        @if (!in_array(auth()->user()->tipo, ['admin', 'super_admin']))
+            @php abort(403); @endphp
+        @endif
+    @endauth
+
     <h2>Editar Cidade</h2>
 
     <form action="{{ route('cidades.update', $cidade->id) }}" method="POST">

@@ -28,7 +28,6 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container">
 
-            {{-- LOGO --}}
             <a class="navbar-brand fw-bold" href="{{ url('/') }}">
                 {{ config('app.name', 'Sistema') }}
             </a>
@@ -39,130 +38,104 @@
 
             <div class="collapse navbar-collapse" id="navbarNav">
 
-                {{-- MENU ESQUERDA --}}
+                {{-- ESQUERDA --}}
                 <ul class="navbar-nav me-auto">
 
                     {{-- HOME --}}
-                    @if (Route::has('home'))
-                        <li class="nav-item">
-                            <a class="nav-link d-flex align-items-center" href="{{ route('home') }}">
-                                <i class="bi bi-house-door-fill me-1"></i> Home
-                            </a>
-                        </li>
-                    @endif
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('home') }}">
+                            <i class="bi bi-house-door-fill"></i> Home
+                        </a>
+                    </li>
 
-                    {{-- USUÁRIOS --}}
+                    {{-- USUÁRIOS (SÓ ADMIN) --}}
                     @auth
-                        @if (Route::has('users.index'))
-                            @can('index', \App\Models\User::class)
-                                <li class="nav-item">
-                                    <a class="nav-link d-flex align-items-center" href="{{ route('users.index') }}">
-                                        <i class="bi bi-people-fill me-1"></i> Usuários
-                                    </a>
-                                </li>
-                            @endcan
+                        @if (in_array(auth()->user()->tipo, ['admin', 'super_admin']))
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('users.index') }}">
+                                    <i class="bi bi-people-fill"></i> Usuários
+                                </a>
+                            </li>
                         @endif
                     @endauth
 
-                    {{-- CRIAR USUÁRIO --}}
-                    @if (Route::has('users.create'))
-                        <li class="nav-item">
-                            <a class="nav-link d-flex align-items-center" href="{{ route('users.create') }}">
-                                <i class="bi bi-person-plus-fill me-1"></i> Criar Usuário
-                            </a>
-                        </li>
-                    @endif
+                    {{-- CRIAR USUÁRIO (LIBERADO) --}}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('users.create') }}">
+                            <i class="bi bi-person-plus-fill"></i> Criar Usuário
+                        </a>
+                    </li>
 
                     {{-- ESPAÇOS --}}
                     @php
                         $cidadeDefault = \App\Models\Cidade::first();
                     @endphp
 
-                    @if ($cidadeDefault && Route::has('espacos.index'))
+                    @if ($cidadeDefault)
                         <li class="nav-item">
-                            <a class="nav-link d-flex align-items-center"
-                                href="{{ route('espacos.index', ['cidade_id' => $cidadeDefault->id]) }}">
-                                <i class="bi bi-building me-1"></i> Espaços
+                            <a class="nav-link" href="{{ route('espacos.index', ['cidade' => $cidadeDefault->id]) }}">
+                                <i class="bi bi-building"></i> Espaços
                             </a>
-                        </li>
-                    @else
-                        <li class="nav-item">
-                            <span class="nav-link text-muted d-flex align-items-center">
-                                <i class="bi bi-building me-1"></i> Espaços
-                            </span>
                         </li>
                     @endif
 
                     {{-- RESERVAS --}}
                     @auth
-                        @if (Route::has('reservas.index'))
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('reservas.index') }}">
-                                    <i class="bi bi-calendar-check-fill me-1"></i> Reservas
-                                </a>
-                            </li>
-                        @endif
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('reservas.index') }}">
+                                <i class="bi bi-calendar-check-fill"></i> Reservas
+                            </a>
+                        </li>
                     @endauth
 
-                    {{-- CALENDÁRIO 🔥 NOVO --}}
+                    {{-- CALENDÁRIO --}}
                     @auth
-                        @if (Route::has('calendario'))
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('calendario') }}">
-                                    <i class="bi bi-calendar-event-fill me-1"></i> Calendário
-                                </a>
-                            </li>
-                        @endif
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('calendario') }}">
+                                <i class="bi bi-calendar-event-fill"></i> Calendário
+                            </a>
+                        </li>
                     @endauth
 
                     {{-- CIDADES --}}
                     @auth
-                        @if (Route::has('cidades.index'))
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('cidades.index') }}">
-                                    <i class="bi bi-geo-alt-fill me-1"></i> Cidades
-                                </a>
-                            </li>
-                        @endif
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('cidades.index') }}">
+                                <i class="bi bi-geo-alt-fill"></i> Cidades
+                            </a>
+                        </li>
                     @endauth
 
                 </ul>
 
-                {{-- MENU DIREITA --}}
+                {{-- DIREITA --}}
                 <ul class="navbar-nav ms-auto align-items-center">
 
                     @auth
-                        {{-- PERFIL --}}
                         <li class="nav-item">
-                            <a href="{{ route('users.show', auth()->user()->id) }}"
-                                class="nav-link text-white d-flex align-items-center">
-                                <i class="bi bi-person-circle me-1"></i>
+                            <a href="{{ route('users.show', auth()->user()->id) }}" class="nav-link text-white">
+                                <i class="bi bi-person-circle"></i>
                                 {{ auth()->user()->name }}
                             </a>
                         </li>
 
-                        {{-- SAIR --}}
-                        <li class="nav-item d-flex align-items-center ms-3">
-                            <form method="POST" action="{{ route('logout') }}" class="d-inline m-0 p-0">
+                        <li class="nav-item ms-3">
+                            <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit"
-                                    class="nav-link btn btn-link text-white d-flex align-items-center p-0 m-0"
+                                <button type="submit" class="nav-link btn btn-link text-white p-0"
                                     style="text-decoration: none;">
-                                    <i class="bi bi-box-arrow-right me-1"></i>
-                                    Sair
+                                    <i class="bi bi-box-arrow-right"></i> Sair
                                 </button>
                             </form>
                         </li>
                     @endauth
 
                     @guest
-                        @if (Route::has('login'))
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center" href="{{ route('login') }}">
-                                    <i class="bi bi-box-arrow-in-right me-1"></i> Login
-                                </a>
-                            </li>
-                        @endif
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('login') }}">
+                                <i class="bi bi-box-arrow-in-right"></i> Login
+                            </a>
+                        </li>
                     @endguest
 
                 </ul>
@@ -171,17 +144,15 @@
         </div>
     </nav>
 
-    {{-- CONTEÚDO --}}
     <main class="py-4">
         <div class="container">
             @yield('content')
         </div>
     </main>
 
-    {{-- FOOTER --}}
     <footer class="bg-light text-center py-3 mt-5">
         <small>
-            &copy; {{ date('Y') }} {{ config('app.name', 'Sistema') }} - Todos os direitos reservados
+            &copy; {{ date('Y') }} {{ config('app.name', 'Sistema') }}
         </small>
     </footer>
 
