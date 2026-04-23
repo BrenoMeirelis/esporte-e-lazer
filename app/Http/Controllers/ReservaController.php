@@ -11,6 +11,7 @@ class ReservaController extends Controller
 {
     use AuthorizesRequests;
 
+    // 🔥 EVENTOS DO CALENDÁRIO
     public function eventos()
     {
         $reservas = Reserva::selectRaw('data, COUNT(*) as total')
@@ -30,11 +31,13 @@ class ReservaController extends Controller
         return response()->json($eventos);
     }
 
+    // 🔥 TELA DO CALENDÁRIO
     public function calendario()
     {
         return view('reservas.calendario');
     }
 
+    // 🔥 LISTAGEM
     public function index()
     {
         $this->authorize('index', Reserva::class);
@@ -52,14 +55,14 @@ class ReservaController extends Controller
         return view('reservas.index', compact('reservas'));
     }
 
-    public function create(Request $request)
+    // 🔥 FORM DE RESERVA (CORRIGIDO AQUI)
+    public function create($espaco_id)
     {
         $this->authorize('create', Reserva::class);
 
-        $espacos = Espaco::all();
-        $data = $request->data;
+        $espaco = Espaco::findOrFail($espaco_id);
 
-        return view('reservas.create', compact('espacos', 'data'));
+        return view('reservas.create', compact('espaco'));
     }
 
     public function store(Request $request)
@@ -73,20 +76,18 @@ class ReservaController extends Controller
             'hora_fim' => 'required|after:hora_inicio'
         ]);
 
-        $existeReserva = Reserva::where('espaco_id', $request->espaco_id)
+        $existe = Reserva::where('espaco_id', $request->espaco_id)
             ->where('data', $request->data)
-            ->where(function ($query) use ($request) {
-
-                $query->whereBetween('hora_inicio', [$request->hora_inicio, $request->hora_fim])
+            ->where(function ($q) use ($request) {
+                $q->whereBetween('hora_inicio', [$request->hora_inicio, $request->hora_fim])
                     ->orWhereBetween('hora_fim', [$request->hora_inicio, $request->hora_fim])
-                    ->orWhere(function ($q) use ($request) {
-                        $q->where('hora_inicio', '<=', $request->hora_inicio)
+                    ->orWhere(function ($q2) use ($request) {
+                        $q2->where('hora_inicio', '<=', $request->hora_inicio)
                             ->where('hora_fim', '>=', $request->hora_fim);
                     });
-
             })->exists();
 
-        if ($existeReserva) {
+        if ($existe) {
             return back()->with('error', 'Este horário já está reservado!');
         }
 
@@ -99,9 +100,10 @@ class ReservaController extends Controller
         ]);
 
         return redirect()->route('reservas.index')
-            ->with('success', 'Reserva feita com sucesso!');
+            ->with('success', 'Reserva criada com sucesso!');
     }
 
+    // 🔥 MOSTRAR
     public function show(Reserva $reserva)
     {
         $this->authorize('show', $reserva);
@@ -109,6 +111,7 @@ class ReservaController extends Controller
         return view('reservas.show', compact('reserva'));
     }
 
+    // 🔥 EDITAR
     public function edit(Reserva $reserva)
     {
         $this->authorize('update', $reserva);
@@ -118,6 +121,7 @@ class ReservaController extends Controller
         return view('reservas.edit', compact('reserva', 'espacos'));
     }
 
+    // 🔥 ATUALIZAR
     public function update(Request $request, Reserva $reserva)
     {
         $this->authorize('update', $reserva);
@@ -140,21 +144,24 @@ class ReservaController extends Controller
                         $q->where('hora_inicio', '<=', $request->hora_inicio)
                             ->where('hora_fim', '>=', $request->hora_fim);
                     });
-
             })->exists();
 
         if ($existeReserva) {
-            return back()->with('error', 'Este horário já está reservado!');
+            return back()->with('erro', 'Este horário já está reservado!');
         }
 
         $reserva->update($request->only([
-            'espaco_id', 'data', 'hora_inicio', 'hora_fim'
+            'espaco_id',
+            'data',
+            'hora_inicio',
+            'hora_fim'
         ]));
 
         return redirect()->route('reservas.index')
-            ->with('success', 'Reserva atualizada com sucesso!');
+            ->with('sucesso', 'Reserva atualizada com sucesso!');
     }
 
+    // 🔥 DELETAR
     public function destroy(Reserva $reserva)
     {
         $this->authorize('delete', $reserva);
@@ -162,6 +169,6 @@ class ReservaController extends Controller
         $reserva->delete();
 
         return redirect()->route('reservas.index')
-            ->with('success', 'Reserva excluída com sucesso!');
+            ->with('sucesso', 'Reserva excluída com sucesso!');
     }
 }

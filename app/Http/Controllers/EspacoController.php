@@ -70,9 +70,7 @@ class EspacoController extends Controller
 
     public function edit(Espaco $espaco)
     {
-        $this->authorize('update', $espaco);
-
-        $categorias = Categoria::where('cidade_id', $espaco->cidade_id)->get();
+        $categorias = Categoria::all();
 
         return view('espacos.edit', compact('espaco', 'categorias'));
     }
@@ -104,8 +102,9 @@ class EspacoController extends Controller
 
         $espaco->update($validated);
 
-        return redirect()->route('espacos.index', ['cidade_id' => $validated['cidade_id']])
-            ->with('success', 'Espaço atualizado com sucesso!');
+        return redirect()->route('espacos.index', [
+            'cidade' => $validated['cidade_id']
+        ])->with('success', 'Espaço atualizado com sucesso!');
     }
 
     public function destroy(Espaco $espaco)
@@ -116,8 +115,9 @@ class EspacoController extends Controller
 
         $espaco->delete();
 
-        return redirect()->route('espacos.index', ['cidade_id' => $cidade_id])
-            ->with('success', 'Espaço excluído com sucesso!');
+        return redirect()->route('espacos.index', [
+            'cidade' => $cidade_id
+        ])->with('success', 'Espaço excluído com sucesso!');
     }
 
     public function buscar(Request $request)

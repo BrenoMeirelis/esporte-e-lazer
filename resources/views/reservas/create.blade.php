@@ -1,81 +1,50 @@
 @extends('layouts.app')
 
 @section('content')
+<div class="container mt-4">
 
-<div class="container">
+    <div class="card shadow col-md-6 mx-auto">
 
-<h2>Nova Reserva</h2>
+        <div class="card-header bg-success text-white">
+            <h4>Reservar Espaço</h4>
+        </div>
 
-<form action="{{ route('reservas.store') }}" method="POST">
+        <div class="card-body">
 
-@csrf
+            @if(session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
 
-<div class="mb-3">
-<label>Espaço</label>
+            <h5>📍 {{ $espaco->titulo }}</h5>
 
-<select name="espaco_id" class="form-control">
+            <form method="POST" action="{{ route('reservas.store') }}">
+                @csrf
 
-@foreach($espacos as $espaco)
+                <input type="hidden" name="espaco_id" value="{{ $espaco->id }}">
 
-<option value="{{ $espaco->id }}">
-{{ $espaco->titulo }}
-</option>
+                <div class="mb-3">
+                    <label>Data</label>
+                    <input type="date" name="data" class="form-control" required>
+                </div>
 
-@if(session('erro'))
-<div class="alert alert-danger">
-    {{ session('erro') }}
-</div>
-@endif
+                <div class="mb-3">
+                    <label>Hora início</label>
+                    <input type="time" name="hora_inicio" class="form-control" required>
+                </div>
 
-@if(session('sucesso'))
-<div class="alert alert-success">
-    {{ session('sucesso') }}
-</div>
-@endif
+                <div class="mb-3">
+                    <label>Hora fim</label>
+                    <input type="time" name="hora_fim" class="form-control" required>
+                </div>
 
-@if(session('error'))
-<div class="alert alert-danger">
-    {{ session('error') }}
-</div>
-@endif
+                <button class="btn btn-success w-100">
+                    Confirmar Reserva
+                </button>
 
-@endforeach
+            </form>
 
-</select>
-
-</div>
-
-
-<div class="mb-3">
-    <label>Data</label>
-    <input type="date" name="data" class="form-control" value="{{ $data }}">
+        </div>
     </div>
 
-
-<div class="mb-3">
-<label>Hora início</label>
-
-<input type="time"
-name="hora_inicio"
-class="form-control">
 </div>
-
-
-<div class="mb-3">
-<label>Hora fim</label>
-
-<input type="time"
-name="hora_fim"
-class="form-control">
-</div>
-
-
-<button class="btn btn-success">
-Salvar reserva
-</button>
-
-</form>
-
-</div>
-
 @endsection

@@ -46,12 +46,11 @@ class CategoriaController extends Controller
 
     public function update(Request $request, Categoria $categoria)
     {
-        $data = $request->validate([
+        $validated = $request->validate([
             'nome' => 'required|string|max:255',
-            'cidade_id' => 'required|exists:cidades,id'
         ]);
 
-        $categoria->update($data);
+        $categoria->update($validated);
 
         return redirect()->route('categorias.index')
             ->with('success', 'Categoria atualizada com sucesso!');

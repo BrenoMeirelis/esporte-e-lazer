@@ -47,13 +47,11 @@
 
 <div class="container mt-4">
 
-    <!-- Hero -->
     <div class="hero-form">
         <h1>✏️ Editar Espaço</h1>
         <p>Atualize as informações do espaço público.</p>
     </div>
 
-    <!-- Erros -->
     @if ($errors->any())
         <div class="alert alert-danger">
             <strong>Erro!</strong> Verifique os campos abaixo:
@@ -70,19 +68,35 @@
             @csrf
             @method('PUT')
 
-            <!-- Informações Básicas -->
             <div class="section-title">Informações Básicas</div>
+
             <div class="mb-3">
                 <label class="form-label">Título</label>
                 <div class="input-group">
                     <span class="input-group-text">🏷</span>
-                    <input type="text" name="titulo" class="form-control" value="{{ old('titulo', $espaco->titulo) }}" required>
+                    <input type="text" name="titulo" class="form-control"
+                        value="{{ old('titulo', $espaco->titulo) }}" required>
                 </div>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Descrição</label>
                 <textarea name="descricao" class="form-control" rows="3">{{ old('descricao', $espaco->descricao) }}</textarea>
+            </div>
+
+            <!-- ✅ CATEGORIA -->
+            <div class="mb-3">
+                <label class="form-label">Categoria</label>
+                <select name="categoria_id" class="form-control" required>
+                    <option value="">Selecione uma categoria</option>
+
+                    @foreach ($categorias as $categoria)
+                        <option value="{{ $categoria->id }}"
+                            {{ old('categoria_id', $espaco->categoria_id) == $categoria->id ? 'selected' : '' }}>
+                            {{ $categoria->nome }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
 
             <!-- Cidade -->
@@ -92,66 +106,82 @@
                 <input type="text" class="form-control" value="{{ $espaco->cidade->nome }}" disabled>
             </div>
 
-            <!-- Horários -->
             <div class="section-title">Horários</div>
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Abertura</label>
-                    <input type="time" name="horario_abertura" class="form-control" value="{{ old('horario_abertura', $espaco->horario_abertura) }}">
+                    <input type="time" name="horario_abertura" class="form-control"
+                        value="{{ old('horario_abertura', $espaco->horario_abertura) }}">
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Encerramento</label>
-                    <input type="time" name="horario_encerramento" class="form-control" value="{{ old('horario_encerramento', $espaco->horario_encerramento) }}">
+                    <input type="time" name="horario_encerramento" class="form-control"
+                        value="{{ old('horario_encerramento', $espaco->horario_encerramento) }}">
                 </div>
             </div>
 
-            <!-- Regras e informações -->
             <div class="section-title">Regras e Informações</div>
+
             <div class="mb-3">
                 <label class="form-label">Período máximo de reserva</label>
-                <input type="number" name="periodo_max_reserva" class="form-control" value="{{ old('periodo_max_reserva', $espaco->periodo_max_reserva) }}">
+                <input type="number" name="periodo_max_reserva" class="form-control"
+                    value="{{ old('periodo_max_reserva', $espaco->periodo_max_reserva) }}">
             </div>
+
             <div class="mb-3">
                 <label class="form-label">Localização</label>
-                <input type="text" name="localizacao" class="form-control" value="{{ old('localizacao', $espaco->localizacao) }}">
+                <input type="text" name="localizacao" class="form-control"
+                    value="{{ old('localizacao', $espaco->localizacao) }}">
             </div>
+
             <div class="mb-3">
                 <label class="form-label">Regras</label>
                 <textarea name="regras" class="form-control" rows="2">{{ old('regras', $espaco->regras) }}</textarea>
             </div>
+
             <div class="mb-3">
                 <label class="form-label">Observações</label>
                 <textarea name="observacoes" class="form-control" rows="2">{{ old('observacoes', $espaco->observacoes) }}</textarea>
             </div>
 
-            <!-- Capacidade -->
             <div class="section-title">Capacidade</div>
+
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Mínimo de participantes</label>
-                    <input type="number" name="min_participantes" class="form-control" value="{{ old('min_participantes', $espaco->min_participantes) }}">
+                    <label class="form-label">Mínimo</label>
+                    <input type="number" name="min_participantes" class="form-control"
+                        value="{{ old('min_participantes', $espaco->min_participantes) }}">
                 </div>
+
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Máximo de participantes</label>
-                    <input type="number" name="max_participantes" class="form-control" value="{{ old('max_participantes', $espaco->max_participantes) }}">
+                    <label class="form-label">Máximo</label>
+                    <input type="number" name="max_participantes" class="form-control"
+                        value="{{ old('max_participantes', $espaco->max_participantes) }}">
                 </div>
             </div>
 
-            <!-- Outros -->
             <div class="section-title">Outros</div>
+
             <div class="mb-3">
-                <label class="form-label">Materiais disponíveis</label>
+                <label class="form-label">Materiais</label>
                 <textarea name="materiais" class="form-control" rows="2">{{ old('materiais', $espaco->materiais) }}</textarea>
             </div>
+
             <div class="mb-3">
                 <label class="form-label">Responsável</label>
-                <input type="text" name="responsavel" class="form-control" value="{{ old('responsavel', $espaco->responsavel) }}">
+                <input type="text" name="responsavel" class="form-control"
+                    value="{{ old('responsavel', $espaco->responsavel) }}">
             </div>
 
-            <!-- Botões -->
             <div class="d-flex justify-content-between">
-                <a href="{{ route('espacos.index', ['cidade_id' => $espaco->cidade_id]) }}" class="btn btn-secondary">← Voltar</a>
-                <button type="submit" class="btn btn-success">✔ Atualizar Espaço</button>
+                <a href="{{ route('espacos.index', ['cidade' => $espaco->cidade_id]) }}"
+                    class="btn btn-secondary">
+                    ← Voltar
+                </a>
+
+                <button type="submit" class="btn btn-success">
+                    ✔ Atualizar Espaço
+                </button>
             </div>
 
         </form>
