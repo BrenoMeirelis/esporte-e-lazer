@@ -7,6 +7,7 @@ use App\Models\Cidade;
 use App\Models\Categoria;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Models\Reserva;
 
 class EspacoController extends Controller
 {
@@ -136,5 +137,15 @@ class EspacoController extends Controller
         $categorias = Categoria::all();
 
         return view('espacos.busca', compact('espacos', 'categorias'));
+    }
+
+    public function show(Espaco $espaco)
+    {
+        $espaco->load(['cidade', 'categoria']);
+
+        $reservas = Reserva::where('espaco_id', $espaco->id)
+            ->get();
+
+        return view('espacos.show', compact('espaco', 'reservas'));
     }
 }

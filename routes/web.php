@@ -65,6 +65,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/categorias/{categoria}', [CategoriaController::class, 'destroy'])->name('categorias.destroy');
 
     // ESPAÇOS
+    Route::get('/cidades/{cidade}/espacos', [EspacoController::class, 'index'])->name('espacos.index');
     Route::get('/espacos/create/{cidade_id?}', [EspacoController::class, 'create'])->name('espacos.create');
     Route::post('/espacos', [EspacoController::class, 'store'])->name('espacos.store');
     Route::get('/espacos/{espaco}/edit', [EspacoController::class, 'edit'])->name('espacos.edit');
@@ -111,31 +112,30 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::middleware(['auth'])->group(function () {
 
-        Route::get('/reservas', [ReservaController::class, 'index'])
-            ->name('reservas.index');
 
-        Route::get('/reservas/create/{espaco_id}', [ReservaController::class, 'create'])
-            ->name('reservas.create');
+    Route::get('/reservas', [ReservaController::class, 'index'])
+        ->name('reservas.index');
 
-        Route::post('/reservas', [ReservaController::class, 'store'])
-            ->name('reservas.store');
+    Route::get('/reservas/create/{espaco_id}', [ReservaController::class, 'create'])
+        ->name('reservas.create');
 
-        Route::get('/reservas/{reserva}', [ReservaController::class, 'show'])
-            ->name('reservas.show');
+    Route::post('/reservas', [ReservaController::class, 'store'])
+        ->name('reservas.store');
 
-        Route::get('/reservas/{reserva}/edit', [ReservaController::class, 'edit'])
-            ->name('reservas.edit');
+    Route::get('/reservas/{reserva}', [ReservaController::class, 'show'])
+        ->name('reservas.show');
 
-        Route::put('/reservas/{reserva}', [ReservaController::class, 'update'])
-            ->name('reservas.update');
+    Route::get('/reservas/{reserva}/edit', [ReservaController::class, 'edit'])
+        ->name('reservas.edit');
 
-        Route::delete('/reservas/{reserva}', [ReservaController::class, 'destroy'])
-            ->name('reservas.destroy');
-    });
+    Route::put('/reservas/{reserva}', [ReservaController::class, 'update'])
+        ->name('reservas.update');
 
-    /*
+    Route::delete('/reservas/{reserva}', [ReservaController::class, 'destroy'])
+        ->name('reservas.destroy');
+
+/*
     |--------------------------------------------------------------------------
     | CALENDÁRIO
     |--------------------------------------------------------------------------
@@ -149,4 +149,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/reservas/eventos', [ReservaController::class, 'eventos'])
         ->name('reservas.eventos');
+
+
+    Route::get('/espacos/{espaco}', [EspacoController::class, 'show'])->name('espacos.show');
+
 });
