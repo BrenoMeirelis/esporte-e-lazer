@@ -1,275 +1,282 @@
 @extends('layouts.app')
 
 @section('content')
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=DM+Sans:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #f5f4f0;
+        }
 
-<style>
+        .page-header {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 40px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
 
-body{
-    font-family:'DM Sans',sans-serif;
-    background:#f5f4f0;
-}
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 48px;
+            background: #f5f4f0;
+            border-radius: 48px 48px 0 0;
+        }
 
-.page-header{
-    background:#1a1a2e;
-    color:#fff;
-    padding:40px 0 80px;
-    position:relative;
-    overflow:hidden;
-}
+        .page-header h1 {
+            font-family: 'Sora', sans-serif;
+            font-size: 34px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
 
-.page-header::after{
-    content:'';
-    position:absolute;
-    bottom:-1px;
-    left:0;
-    right:0;
-    height:48px;
-    background:#f5f4f0;
-    border-radius:48px 48px 0 0;
-}
+        .page-header p {
+            color: #9090c0;
+            margin: 0;
+        }
 
-.page-header h1{
-    font-family:'Sora',sans-serif;
-    font-size:34px;
-    font-weight:700;
-    margin-bottom:8px;
-}
+        .reserve-card {
+            background: #fff;
+            border-radius: 24px;
+            border: 1.5px solid #e8e7e0;
+            padding: 30px;
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.08);
+            margin-top: 30px;
+        }
 
-.page-header p{
-    color:#9090c0;
-    margin:0;
-}
+        .space-box {
+            background: #f7f7fb;
+            border: 1.5px solid #ececff;
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 28px;
+        }
 
-.reserve-card{
-    background:#fff;
-    border-radius:24px;
-    border:1.5px solid #e8e7e0;
-    padding:30px;
-    box-shadow:0 14px 36px rgba(0,0,0,0.08);
-    margin-top:30px;
-}
+        .space-box h3 {
+            font-family: 'Sora', sans-serif;
+            font-size: 22px;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
 
-.space-box{
-    background:#f7f7fb;
-    border:1.5px solid #ececff;
-    border-radius:18px;
-    padding:20px;
-    margin-bottom:28px;
-}
+        .space-box p {
+            color: #777;
+            margin: 0;
+        }
 
-.space-box h3{
-    font-family:'Sora',sans-serif;
-    font-size:22px;
-    color:#1a1a2e;
-    margin-bottom:8px;
-}
+        .form-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+        }
 
-.space-box p{
-    color:#777;
-    margin:0;
-}
+        .form-control {
+            border-radius: 14px;
+            border: 1.5px solid #e5e5e5;
+            padding: 13px 16px;
+            font-size: 14px;
+            transition: .2s;
+        }
 
-.form-label{
-    font-size:13px;
-    font-weight:600;
-    color:#666;
-    margin-bottom:8px;
-}
+        .form-control:focus {
+            border-color: #4a4aff;
+            box-shadow: none;
+        }
 
-.form-control{
-    border-radius:14px;
-    border:1.5px solid #e5e5e5;
-    padding:13px 16px;
-    font-size:14px;
-    transition:.2s;
-}
+        .btn-main {
+            background: #1a1a2e;
+            color: #fff;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: .2s;
+            width: 100%;
+        }
 
-.form-control:focus{
-    border-color:#4a4aff;
-    box-shadow:none;
-}
+        .btn-main:hover {
+            background: #4a4aff;
+        }
 
-.btn-main{
-    background:#1a1a2e;
-    color:#fff;
-    border:none;
-    padding:14px 20px;
-    border-radius:14px;
-    font-size:14px;
-    font-weight:600;
-    transition:.2s;
-    width:100%;
-}
+        .btn-soft {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 14px;
+            border: 1.5px solid #e5e5e5;
+            background: #fff;
+            color: #555;
+            text-decoration: none;
+            transition: .2s;
+        }
 
-.btn-main:hover{
-    background:#4a4aff;
-}
+        .btn-soft:hover {
+            border-color: #4a4aff;
+            color: #4a4aff;
+            background: #f0f0ff;
+        }
 
-.btn-soft{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding:12px 20px;
-    border-radius:14px;
-    border:1.5px solid #e5e5e5;
-    background:#fff;
-    color:#555;
-    text-decoration:none;
-    transition:.2s;
-}
+        .alert-modern {
+            border: none;
+            border-radius: 16px;
+        }
 
-.btn-soft:hover{
-    border-color:#4a4aff;
-    color:#4a4aff;
-    background:#f0f0ff;
-}
+        .input-icon {
+            position: relative;
+        }
 
-.alert-modern{
-    border:none;
-    border-radius:16px;
-}
+        .input-icon i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
 
-.input-icon{
-    position:relative;
-}
+        .input-icon .form-control {
+            padding-left: 42px;
+        }
+    </style>
 
-.input-icon i{
-    position:absolute;
-    left:14px;
-    top:50%;
-    transform:translateY(-50%);
-    color:#999;
-}
+    <div class="page-header">
+        <div class="container">
 
-.input-icon .form-control{
-    padding-left:42px;
-}
+            <h1>Reservar Espaço</h1>
 
-</style>
+            <p>
+                Escolha a data e horário da reserva
+            </p>
 
-<div class="page-header">
+        </div>
+    </div>
+
     <div class="container">
 
-        <h1>Reservar Espaço</h1>
+        <div class="row justify-content-center">
 
-        <p>
-            Escolha a data e horário da reserva
-        </p>
+            <div class="col-lg-7">
 
-    </div>
-</div>
+                <div class="reserve-card">
 
-<div class="container">
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-modern">
+                            {{ session('error') }}
+                        </div>
+                    @endif
 
-    <div class="row justify-content-center">
+                    <div class="space-box">
 
-        <div class="col-lg-7">
+                        <h3>
+                            📍 {{ $espaco->titulo }}
+                        </h3>
 
-            <div class="reserve-card">
+                        <p>
+                            Faça sua reserva de forma rápida e organizada.
+                        </p>
 
-                @if(session('error'))
-                    <div class="alert alert-danger alert-modern">
-                        {{ session('error') }}
                     </div>
-                @endif
 
-                <div class="space-box">
+                    <form method="POST" action="{{ route('reservas.store') }}">
+                        @csrf
 
-                    <h3>
-                        📍 {{ $espaco->titulo }}
-                    </h3>
+                        <input type="hidden" name="espaco_id" value="{{ $espaco->id }}">
 
-                    <p>
-                        Faça sua reserva de forma rápida e organizada.
-                    </p>
+                        <div class="mb-4">
+
+                            <label class="form-label">
+                                Data da Reserva
+                            </label>
+
+                            <div class="input-icon">
+                                <i class="bi bi-calendar-event"></i>
+
+                                <input type="date" name="data" class="form-control" value="{{ request('data') }}"
+                                    required>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-4">
+
+                                <label class="form-label">
+                                    Hora Início
+                                </label>
+
+                                <div class="input-icon">
+                                    <i class="bi bi-clock"></i>
+
+                                    <input type="time" name="hora_inicio" class="form-control" required>
+                                </div>
+
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+
+                                <label class="form-label">
+                                    Hora Fim
+                                </label>
+
+                                <div class="input-icon">
+                                    <i class="bi bi-clock-history"></i>
+
+                                    <input type="time" name="hora_fim" class="form-control" required>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        {{-- Lista de participantes --}}
+                        <div class="my-4">
+                            <label class="form-label">
+                                Número de Participantes
+                            </label>
+
+                            <input type="number" name="numero_participantes" id="numero_participantes"
+                                class="form-control" min="{{ $espaco->min_participantes ?? 1 }}"
+                                max="{{ $espaco->max_participantes ?? 999 }}"
+                                value="{{ old('numero_participantes', $espaco->min_participantes ?? 1) }}" required>
+
+                            <small style="color:#888;">
+                                Permitido: mínimo {{ $espaco->min_participantes ?? 1 }} e máximo
+                                {{ $espaco->max_participantes ?? 'sem limite' }} participantes.
+                            </small>
+
+                            <div id="participantes-area"></div>
+                        </div>
+
+
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+
+                            <a href="{{ url()->previous() }}" class="btn-soft">
+
+                                <i class="bi bi-arrow-left"></i>
+                                Voltar
+                            </a>
+
+                            <button type="submit" class="btn-main">
+
+                                Confirmar Reserva
+
+                            </button>
+
+                        </div>
+
+                    </form>
 
                 </div>
-
-                <form method="POST" action="{{ route('reservas.store') }}">
-                    @csrf
-
-                    <input type="hidden"
-                        name="espaco_id"
-                        value="{{ $espaco->id }}">
-
-                    <div class="mb-4">
-
-                        <label class="form-label">
-                            Data da Reserva
-                        </label>
-
-                        <div class="input-icon">
-                            <i class="bi bi-calendar-event"></i>
-
-                            <input type="date"
-                                name="data"
-                                class="form-control"
-                                required>
-                        </div>
-
-                    </div>
-
-                    <div class="row">
-
-                        <div class="col-md-6 mb-4">
-
-                            <label class="form-label">
-                                Hora Início
-                            </label>
-
-                            <div class="input-icon">
-                                <i class="bi bi-clock"></i>
-
-                                <input type="time"
-                                    name="hora_inicio"
-                                    class="form-control"
-                                    required>
-                            </div>
-
-                        </div>
-
-                        <div class="col-md-6 mb-4">
-
-                            <label class="form-label">
-                                Hora Fim
-                            </label>
-
-                            <div class="input-icon">
-                                <i class="bi bi-clock-history"></i>
-
-                                <input type="time"
-                                    name="hora_fim"
-                                    class="form-control"
-                                    required>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center mt-4">
-
-                        <a href="{{ url()->previous() }}"
-                            class="btn-soft">
-
-                            <i class="bi bi-arrow-left"></i>
-                            Voltar
-
-                        </a>
-
-                        <button type="submit"
-                            class="btn-main">
-
-                            Confirmar Reserva
-
-                        </button>
-
-                    </div>
-
-                </form>
 
             </div>
 
@@ -277,40 +284,129 @@ body{
 
     </div>
 
-</div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
 
-<script>
+            const horaInicio = document.querySelector('input[name="hora_inicio"]');
+            const horaFim = document.querySelector('input[name="hora_fim"]');
 
-document.addEventListener('DOMContentLoaded', function(){
+            function validarHorario() {
 
-    const horaInicio = document.querySelector('input[name="hora_inicio"]');
-    const horaFim = document.querySelector('input[name="hora_fim"]');
+                if (horaInicio.value && horaFim.value) {
 
-    function validarHorario(){
+                    if (horaFim.value <= horaInicio.value) {
 
-        if(horaInicio.value && horaFim.value){
+                        horaFim.setCustomValidity(
+                            'A hora final deve ser maior que a hora inicial.'
+                        );
 
-            if(horaFim.value <= horaInicio.value){
+                    } else {
 
-                horaFim.setCustomValidity(
-                    'A hora final deve ser maior que a hora inicial.'
-                );
+                        horaFim.setCustomValidity('');
 
-            } else {
+                    }
 
-                horaFim.setCustomValidity('');
+                }
 
             }
 
+            horaInicio.addEventListener('change', validarHorario);
+            horaFim.addEventListener('change', validarHorario);
+
+        });
+
+        const horaAbertura = "{{ $espaco->horario_abertura }}";
+const horaEncerramento = "{{ $espaco->horario_encerramento }}";
+const minParticipantes = {{ $espaco->min_participantes ?? 1 }};
+const maxParticipantes = {{ $espaco->max_participantes ?? 999 }};
+
+const numeroParticipantes = document.getElementById('numero_participantes');
+const participantesArea = document.getElementById('participantes-area');
+
+function validarHorario() {
+    if (horaInicio.value && horaFim.value) {
+        if (horaInicio.value < horaAbertura) {
+            horaInicio.setCustomValidity('O horário inicial não pode ser antes de ' + horaAbertura);
+        } else {
+            horaInicio.setCustomValidity('');
         }
 
+        if (horaFim.value > horaEncerramento) {
+            horaFim.setCustomValidity('O horário final não pode passar de ' + horaEncerramento);
+        } else if (horaFim.value <= horaInicio.value) {
+            horaFim.setCustomValidity('A hora final deve ser maior que a hora inicial.');
+        } else {
+            horaFim.setCustomValidity('');
+        }
+    }
+}
+
+function gerarParticipantes() {
+    let total = parseInt(numeroParticipantes.value || 0);
+
+    if (total < minParticipantes) {
+        numeroParticipantes.setCustomValidity('O mínimo permitido é ' + minParticipantes + ' participantes.');
+        return;
     }
 
-    horaInicio.addEventListener('change', validarHorario);
-    horaFim.addEventListener('change', validarHorario);
+    if (total > maxParticipantes) {
+        numeroParticipantes.setCustomValidity('O máximo permitido é ' + maxParticipantes + ' participantes.');
+        return;
+    }
 
-});
+    numeroParticipantes.setCustomValidity('');
+    participantesArea.innerHTML = '';
 
-</script>
+    for (let i = 1; i <= total; i++) {
+        participantesArea.innerHTML += `
+            <div class="mb-3 p-3" style="border:1.5px solid #e8e7e0;border-radius:16px;background:#fafaf8;">
+                <strong style="display:block;margin-bottom:12px;color:#1a1a2e;">
+                    Participante ${i}
+                </strong>
 
+                <div class="mb-3">
+                    <label class="form-label">Nome</label>
+                    <input type="text"
+                        name="participantes[${i - 1}][nome]"
+                        class="form-control"
+                        maxlength="255"
+                        required>
+                </div>
+
+                <div>
+                    <label class="form-label">Documento</label>
+                    <input type="text"
+                        name="participantes[${i - 1}][documento]"
+                        class="form-control documento-participante"
+                        maxlength="14"
+                        placeholder="CPF ou RG"
+                        required>
+                </div>
+            </div>
+        `;
+    }
+
+    aplicarMascaraDocumentos();
+}
+
+function aplicarMascaraDocumentos() {
+    document.querySelectorAll('.documento-participante').forEach(input => {
+        input.addEventListener('input', function () {
+            let value = this.value.replace(/\D/g, '').slice(0, 11);
+
+            if (value.length > 9) {
+                value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            }
+
+            this.value = value;
+        });
+    });
+}
+
+numeroParticipantes.addEventListener('input', gerarParticipantes);
+gerarParticipantes();
+
+    </script>
 @endsection

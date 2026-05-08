@@ -21,6 +21,7 @@ class Reserva extends Model
 
     protected $casts = [
         'data' => 'date',
+        'participantes' => 'array',
     ];
 
     // ─── CONSTANTES DE STATUS ────────────────────────────────────────────────

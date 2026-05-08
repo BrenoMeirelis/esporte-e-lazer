@@ -73,7 +73,7 @@
 
                     @if ($cidadeDefault)
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('espacos.index', ['cidade' => $cidadeDefault->id]) }}">
+                            <a class="nav-link" href="{{ route('cidades.index') }}">
                                 <i class="bi bi-building"></i> Espaços
                             </a>
                         </li>
@@ -93,15 +93,6 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('calendario') }}">
                                 <i class="bi bi-calendar-event-fill"></i> Calendário
-                            </a>
-                        </li>
-                    @endauth
-
-                    {{-- CIDADES --}}
-                    @auth
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('cidades.index') }}">
-                                <i class="bi bi-geo-alt-fill"></i> Cidades
                             </a>
                         </li>
                     @endauth
@@ -144,10 +135,8 @@
         </div>
     </nav>
 
-    <main class="py-4">
-        <div class="container">
-            @yield('content')
-        </div>
+    <main>
+        @yield('content')
     </main>
 
     <footer class="bg-light text-center py-3 mt-5">

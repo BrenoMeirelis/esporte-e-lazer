@@ -67,28 +67,41 @@ class ReservaController extends Controller
 
     public function store(Request $request)
     {
-        $this->authorize('create', Reserva::class);
-
         $request->validate([
             'espaco_id' => 'required|exists:espacos,id',
-            'data' => 'required|date',
+            'data' => 'required|date|after_or_equal:today',
             'hora_inicio' => 'required',
-            'hora_fim' => 'required|after:hora_inicio'
+            'hora_fim' => 'required|after:hora_inicio',
+            'numero_participantes' => 'required|integer|min:1',
+            'participantes' => 'nullable|array',
+            'participantes.*.nome' => 'required|string|max:255',
+            'participantes.*.documento' => 'required|string|max:20',
         ]);
 
-        $existe = Reserva::where('espaco_id', $request->espaco_id)
-            ->where('data', $request->data)
-            ->where(function ($q) use ($request) {
-                $q->whereBetween('hora_inicio', [$request->hora_inicio, $request->hora_fim])
-                    ->orWhereBetween('hora_fim', [$request->hora_inicio, $request->hora_fim])
-                    ->orWhere(function ($q2) use ($request) {
-                        $q2->where('hora_inicio', '<=', $request->hora_inicio)
-                            ->where('hora_fim', '>=', $request->hora_fim);
-                    });
-            })->exists();
+        $espaco = Espaco::findOrFail($request->espaco_id);
 
-        if ($existe) {
-            return back()->with('error', 'Este horário já está reservado!');
+        if ($request->hora_inicio < $espaco->horario_abertura) {
+            return back()
+                ->withInput()
+                ->with('error', 'A reserva não pode começar antes do horário de abertura do espaço.');
+        }
+
+        if ($request->hora_fim > $espaco->horario_encerramento) {
+            return back()
+                ->withInput()
+                ->with('error', 'A reserva não pode terminar depois do horário de encerramento do espaço.');
+        }
+
+        if ($request->numero_participantes < $espaco->min_participantes) {
+            return back()
+                ->withInput()
+                ->with('error', 'O número de participantes é menor que o mínimo permitido para este espaço.');
+        }
+
+        if ($request->numero_participantes > $espaco->max_participantes) {
+            return back()
+                ->withInput()
+                ->with('error', 'O número de participantes excede o máximo permitido para este espaço.');
         }
 
         Reserva::create([
@@ -96,11 +109,14 @@ class ReservaController extends Controller
             'user_id' => auth()->id(),
             'data' => $request->data,
             'hora_inicio' => $request->hora_inicio,
-            'hora_fim' => $request->hora_fim
+            'hora_fim' => $request->hora_fim,
+            'numero_participantes' => $request->numero_participantes,
+            'participantes' => $request->participantes,
         ]);
 
-        return redirect()->route('reservas.index')
-            ->with('success', 'Reserva criada com sucesso!');
+        return redirect()
+            ->route('reservas.index')
+            ->with('success', 'Reserva realizada com sucesso!');
     }
 
     // 🔥 MOSTRAR
