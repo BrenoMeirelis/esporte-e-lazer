@@ -88,14 +88,9 @@
                         </li>
                     @endauth
 
-                    {{-- CALENDÁRIO --}}
+                    {{-- CALENDÁRIO ADMIN --}}
                     @auth
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('calendario') }}">
-                                <i class="bi bi-calendar-event-fill"></i> Calendário
-                            </a>
-                        </li>
-                    @endauth
+                        @endif
 
                 </ul>
 

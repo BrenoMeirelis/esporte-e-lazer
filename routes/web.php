@@ -9,6 +9,8 @@ use App\Http\Controllers\CidadeController;
 use App\Http\Controllers\EspacoController;
 use App\Http\Controllers\ReservaController;
 use App\Http\Controllers\CategoriaController;
+use App\Http\Controllers\CalendarioController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +49,12 @@ Route::middleware(['guest'])->group(function () {
 | ADMIN
 |--------------------------------------------------------------------------
 */
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/cidades/{cidade}/calendario', [CalendarioController::class, 'index'])
+        ->name('cidades.calendario');
+});
 
 Route::middleware(['auth', 'admin'])->group(function () {
 
@@ -140,6 +148,7 @@ Route::middleware(['auth'])->group(function () {
     | CALENDÁRIO
     |--------------------------------------------------------------------------
     */
+
 
     Route::get('/calendario', [ReservaController::class, 'calendario'])->name('calendario');
     Route::get('/eventos', [ReservaController::class, 'eventos'])->name('eventos');

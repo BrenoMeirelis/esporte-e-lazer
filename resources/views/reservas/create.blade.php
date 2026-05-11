@@ -244,9 +244,8 @@
                                 Número de Participantes
                             </label>
 
-                            <input type="number" name="numero_participantes" id="numero_participantes"
-                                class="form-control" min="{{ $espaco->min_participantes ?? 1 }}"
-                                max="{{ $espaco->max_participantes ?? 999 }}"
+                            <input type="number" name="numero_participantes" id="numero_participantes" class="form-control"
+                                min="{{ $espaco->min_participantes ?? 1 }}" max="{{ $espaco->max_participantes ?? 999 }}"
                                 value="{{ old('numero_participantes', $espaco->min_participantes ?? 1) }}" required>
 
                             <small style="color:#888;">
@@ -316,49 +315,77 @@
         });
 
         const horaAbertura = "{{ $espaco->horario_abertura }}";
-const horaEncerramento = "{{ $espaco->horario_encerramento }}";
-const minParticipantes = {{ $espaco->min_participantes ?? 1 }};
-const maxParticipantes = {{ $espaco->max_participantes ?? 999 }};
+        const horaEncerramento = "{{ $espaco->horario_encerramento }}";
+        const minParticipantes = {{ $espaco->min_participantes ?? 1 }};
+        const maxParticipantes = {{ $espaco->max_participantes ?? 999 }};
 
-const numeroParticipantes = document.getElementById('numero_participantes');
-const participantesArea = document.getElementById('participantes-area');
+        const numeroParticipantes = document.getElementById('numero_participantes');
+        const participantesArea = document.getElementById('participantes-area');
 
-function validarHorario() {
-    if (horaInicio.value && horaFim.value) {
-        if (horaInicio.value < horaAbertura) {
-            horaInicio.setCustomValidity('O horário inicial não pode ser antes de ' + horaAbertura);
-        } else {
+        function validarHorario() {
+
             horaInicio.setCustomValidity('');
-        }
-
-        if (horaFim.value > horaEncerramento) {
-            horaFim.setCustomValidity('O horário final não pode passar de ' + horaEncerramento);
-        } else if (horaFim.value <= horaInicio.value) {
-            horaFim.setCustomValidity('A hora final deve ser maior que a hora inicial.');
-        } else {
             horaFim.setCustomValidity('');
+
+            if (!horaInicio.value || !horaFim.value) {
+                return;
+            }
+
+            // Valida horário de abertura
+            if (horaInicio.value < horaAbertura) {
+
+                horaInicio.setCustomValidity(
+                    `O espaço funciona somente a partir das ${horaAbertura}.`
+                );
+
+                horaInicio.reportValidity();
+                return;
+            }
+
+            // Valida horário de encerramento
+            if (horaFim.value > horaEncerramento) {
+
+                horaFim.setCustomValidity(
+                    `O espaço funciona somente até ${horaEncerramento}.`
+                );
+
+                horaFim.reportValidity();
+                return;
+            }
+
+            // Hora final menor que inicial
+            if (horaFim.value <= horaInicio.value) {
+
+                horaFim.setCustomValidity(
+                    'A hora final deve ser maior que a hora inicial.'
+                );
+
+                horaFim.reportValidity();
+                return;
+            }
         }
-    }
-}
 
-function gerarParticipantes() {
-    let total = parseInt(numeroParticipantes.value || 0);
+        horaInicio.addEventListener('input', validarHorario);
+        horaFim.addEventListener('input', validarHorario);
 
-    if (total < minParticipantes) {
-        numeroParticipantes.setCustomValidity('O mínimo permitido é ' + minParticipantes + ' participantes.');
-        return;
-    }
+        function gerarParticipantes() {
+            let total = parseInt(numeroParticipantes.value || 0);
 
-    if (total > maxParticipantes) {
-        numeroParticipantes.setCustomValidity('O máximo permitido é ' + maxParticipantes + ' participantes.');
-        return;
-    }
+            if (total < minParticipantes) {
+                numeroParticipantes.setCustomValidity('O mínimo permitido é ' + minParticipantes + ' participantes.');
+                return;
+            }
 
-    numeroParticipantes.setCustomValidity('');
-    participantesArea.innerHTML = '';
+            if (total > maxParticipantes) {
+                numeroParticipantes.setCustomValidity('O máximo permitido é ' + maxParticipantes + ' participantes.');
+                return;
+            }
 
-    for (let i = 1; i <= total; i++) {
-        participantesArea.innerHTML += `
+            numeroParticipantes.setCustomValidity('');
+            participantesArea.innerHTML = '';
+
+            for (let i = 1; i <= total; i++) {
+                participantesArea.innerHTML += `
             <div class="mb-3 p-3" style="border:1.5px solid #e8e7e0;border-radius:16px;background:#fafaf8;">
                 <strong style="display:block;margin-bottom:12px;color:#1a1a2e;">
                     Participante ${i}
@@ -384,29 +411,28 @@ function gerarParticipantes() {
                 </div>
             </div>
         `;
-    }
-
-    aplicarMascaraDocumentos();
-}
-
-function aplicarMascaraDocumentos() {
-    document.querySelectorAll('.documento-participante').forEach(input => {
-        input.addEventListener('input', function () {
-            let value = this.value.replace(/\D/g, '').slice(0, 11);
-
-            if (value.length > 9) {
-                value = value.replace(/(\d{3})(\d)/, '$1.$2');
-                value = value.replace(/(\d{3})(\d)/, '$1.$2');
-                value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
             }
 
-            this.value = value;
-        });
-    });
-}
+            aplicarMascaraDocumentos();
+        }
 
-numeroParticipantes.addEventListener('input', gerarParticipantes);
-gerarParticipantes();
+        function aplicarMascaraDocumentos() {
+            document.querySelectorAll('.documento-participante').forEach(input => {
+                input.addEventListener('input', function() {
+                    let value = this.value.replace(/\D/g, '').slice(0, 11);
 
+                    if (value.length > 9) {
+                        value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                        value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                        value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                    }
+
+                    this.value = value;
+                });
+            });
+        }
+
+        numeroParticipantes.addEventListener('input', gerarParticipantes);
+        gerarParticipantes();
     </script>
 @endsection
