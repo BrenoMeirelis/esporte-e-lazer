@@ -187,4 +187,26 @@ class ReservaController extends Controller
         return redirect()->route('reservas.index')
             ->with('sucesso', 'Reserva excluída com sucesso!');
     }
+
+    public function aprovar(Reserva $reserva)
+    {
+        $this->authorize('approve', $reserva);
+
+        $reserva->update([
+            'status' => 'aprovada'
+        ]);
+
+        return back()->with('success', 'Reserva aprovada.');
+    }
+
+    public function rejeitar(Reserva $reserva)
+    {
+        $this->authorize('reject', $reserva);
+
+        $reserva->update([
+            'status' => 'rejeitada'
+        ]);
+
+        return back()->with('success', 'Reserva rejeitada.');
+    }
 }

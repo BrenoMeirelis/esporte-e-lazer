@@ -49,11 +49,29 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'data_nascimento' => 'date',
+            'is_admin' => 'boolean'
         ];
     }
 
     public function cidades()
-{
-    return $this->belongsToMany(Cidade::class);
-}
+    {
+        return $this->belongsToMany(Cidade::class);
+    }
+
+    public function cidadesAdministradas()
+    {
+        return $this->belongsToMany(Cidade::class, 'cidade_user')
+            ->withTimestamps();
+    }
+
+    public function isSuperAdmin()
+    {
+        return $this->is_admin;
+    }
+
+    public function isAdminDaCidade($cidadeId)
+    {
+        return $this->isSuperAdmin()
+            || $this->cidadesAdministradas()->where('cidade_id', $cidadeId)->exists();
+    }
 }

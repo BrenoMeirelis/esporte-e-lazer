@@ -10,13 +10,15 @@ use App\Http\Controllers\EspacoController;
 use App\Http\Controllers\ReservaController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\CalendarioController;
+use App\Http\Controllers\ConviteAdministradorCidadeController;
 
 
-/*
-|--------------------------------------------------------------------------
-| PÚBLICO
-|--------------------------------------------------------------------------
-*/
+
+Route::get('/convites/admin-cidade/{token}/aceitar', [ConviteAdministradorCidadeController::class, 'aceitar'])
+    ->name('convites.admin-cidade.aceitar');
+
+Route::get('/convites/admin-cidade/{token}/rejeitar', [ConviteAdministradorCidadeController::class, 'rejeitar'])
+    ->name('convites.admin-cidade.rejeitar');
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -24,74 +26,17 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-/*
-|--------------------------------------------------------------------------
-| BUSCAS
-|--------------------------------------------------------------------------
-*/
-
 Route::get('/buscar-espacos', [EspacoController::class, 'buscar'])->name('espacos.buscar');
 Route::get('/buscar-cidades', [CidadeController::class, 'buscar'])->name('cidades.buscar');
-
-/*
-|--------------------------------------------------------------------------
-| CADASTRO DE USUÁRIO
-|--------------------------------------------------------------------------
-*/
 
 Route::middleware(['guest'])->group(function () {
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
 });
 
-/*
-|--------------------------------------------------------------------------
-| ADMIN
-|--------------------------------------------------------------------------
-*/
-
-
 Route::middleware(['auth'])->group(function () {
-    Route::get('/cidades/{cidade}/calendario', [CalendarioController::class, 'index'])
-        ->name('cidades.calendario');
-});
 
-Route::middleware(['auth', 'admin'])->group(function () {
 
-    // CIDADES
-    Route::get('/cidades/create', [CidadeController::class, 'create'])->name('cidades.create');
-    Route::post('/cidades', [CidadeController::class, 'store'])->name('cidades.store');
-    Route::get('/cidades/{cidade}/edit', [CidadeController::class, 'edit'])->name('cidades.edit');
-    Route::put('/cidades/{cidade}', [CidadeController::class, 'update'])->name('cidades.update');
-    Route::delete('/cidades/{cidade}', [CidadeController::class, 'destroy'])->name('cidades.destroy');
-
-    // CATEGORIAS
-    Route::get('/categorias/create', [CategoriaController::class, 'create'])->name('categorias.create');
-    Route::post('/categorias', [CategoriaController::class, 'store'])->name('categorias.store');
-    Route::get('/categorias/{categoria}/edit', [CategoriaController::class, 'edit'])->name('categorias.edit');
-    Route::put('/categorias/{categoria}', [CategoriaController::class, 'update'])->name('categorias.update');
-    Route::delete('/categorias/{categoria}', [CategoriaController::class, 'destroy'])->name('categorias.destroy');
-
-    // ESPAÇOS
-    Route::get('/cidades/{cidade}/espacos', [EspacoController::class, 'index'])->name('espacos.index');
-    Route::get('/espacos/create/{cidade_id?}', [EspacoController::class, 'create'])->name('espacos.create');
-    Route::post('/espacos', [EspacoController::class, 'store'])->name('espacos.store');
-    Route::get('/espacos/{espaco}/edit', [EspacoController::class, 'edit'])->name('espacos.edit');
-    Route::put('/espacos/{espaco}', [EspacoController::class, 'update'])->name('espacos.update');
-    Route::delete('/espacos/{espaco}', [EspacoController::class, 'destroy'])->name('espacos.destroy');
-
-    // RESERVAS (ADMIN)
-    Route::put('/reservas/{reserva}', [ReservaController::class, 'update'])->name('reservas.update');
-    Route::delete('/reservas/{reserva}', [ReservaController::class, 'destroy'])->name('reservas.destroy');
-});
-
-/*
-|--------------------------------------------------------------------------
-| USUÁRIO AUTENTICADO
-|--------------------------------------------------------------------------
-*/
-
-Route::middleware(['auth'])->group(function () {
 
     // USERS
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
@@ -102,54 +47,62 @@ Route::middleware(['auth'])->group(function () {
 
     // CIDADES
     Route::get('/cidades', [CidadeController::class, 'index'])->name('cidades.index');
-    Route::get('/cidades/{cidade}', [CidadeController::class, 'show'])->name('cidades.show');
+    Route::get('/cidades/create', [CidadeController::class, 'create'])->name('cidades.create');
+    Route::post('/cidades', [CidadeController::class, 'store'])->name('cidades.store');
+
+    Route::post('/cidades/{cidade}/convites-admin', [ConviteAdministradorCidadeController::class, 'store'])
+        ->name('cidades.convites-admin.store');
 
     Route::post('/cidades/{cidade}/adicionar-usuario', [CidadeController::class, 'adicionarUsuario'])
         ->name('cidades.adicionarUsuario');
 
+    Route::delete('/cidades/{cidade}/remover-usuario/{user}', [CidadeController::class, 'removerUsuario'])
+        ->name('cidades.removerUsuario');
+
+    Route::get('/cidades/{cidade}/calendario', [CalendarioController::class, 'index'])
+        ->name('cidades.calendario');
+
+    Route::get('/cidades/{cidade}/edit', [CidadeController::class, 'edit'])->name('cidades.edit');
+    Route::put('/cidades/{cidade}', [CidadeController::class, 'update'])->name('cidades.update');
+    Route::delete('/cidades/{cidade}', [CidadeController::class, 'destroy'])->name('cidades.destroy');
+
+    // sempre por último
+    Route::get('/cidades/{cidade}', [CidadeController::class, 'show'])->name('cidades.show');
+
     // CATEGORIAS
     Route::get('/categorias', [CategoriaController::class, 'index'])->name('categorias.index');
+    Route::get('/categorias/create', [CategoriaController::class, 'create'])->name('categorias.create');
+    Route::post('/categorias', [CategoriaController::class, 'store'])->name('categorias.store');
     Route::get('/categorias/{categoria}', [CategoriaController::class, 'show'])->name('categorias.show');
+    Route::get('/categorias/{categoria}/edit', [CategoriaController::class, 'edit'])->name('categorias.edit');
+    Route::put('/categorias/{categoria}', [CategoriaController::class, 'update'])->name('categorias.update');
+    Route::delete('/categorias/{categoria}', [CategoriaController::class, 'destroy'])->name('categorias.destroy');
 
     // ESPAÇOS
     Route::get('/cidades/{cidade}/espacos', [EspacoController::class, 'index'])->name('espacos.index');
+    Route::get('/espacos/create/{cidade_id?}', [EspacoController::class, 'create'])->name('espacos.create');
+    Route::post('/espacos', [EspacoController::class, 'store'])->name('espacos.store');
+    Route::get('/espacos/{espaco}', [EspacoController::class, 'show'])->name('espacos.show');
+    Route::get('/espacos/{espaco}/edit', [EspacoController::class, 'edit'])->name('espacos.edit');
+    Route::put('/espacos/{espaco}', [EspacoController::class, 'update'])->name('espacos.update');
+    Route::delete('/espacos/{espaco}', [EspacoController::class, 'destroy'])->name('espacos.destroy');
 
-    /*
-    |--------------------------------------------------------------------------
-    | RESERVAS (LIMPO E CORRETO)
-    |--------------------------------------------------------------------------
-    */
+    // RESERVAS
+    Route::get('/reservas', [ReservaController::class, 'index'])->name('reservas.index');
+    Route::get('/reservas/create/{espaco_id}', [ReservaController::class, 'create'])->name('reservas.create');
+    Route::post('/reservas', [ReservaController::class, 'store'])->name('reservas.store');
+    Route::get('/reservas/{reserva}', [ReservaController::class, 'show'])->name('reservas.show');
+    Route::get('/reservas/{reserva}/edit', [ReservaController::class, 'edit'])->name('reservas.edit');
+    Route::put('/reservas/{reserva}', [ReservaController::class, 'update'])->name('reservas.update');
+    Route::delete('/reservas/{reserva}', [ReservaController::class, 'destroy'])->name('reservas.destroy');
 
+    Route::patch('/reservas/{reserva}/aprovar', [ReservaController::class, 'aprovar'])
+        ->name('reservas.aprovar');
 
+    Route::patch('/reservas/{reserva}/rejeitar', [ReservaController::class, 'rejeitar'])
+        ->name('reservas.rejeitar');
 
-    Route::get('/reservas', [ReservaController::class, 'index'])
-        ->name('reservas.index');
-
-    Route::get('/reservas/create/{espaco_id}', [ReservaController::class, 'create'])
-        ->name('reservas.create');
-
-    Route::post('/reservas', [ReservaController::class, 'store'])
-        ->name('reservas.store');
-
-    Route::get('/reservas/{reserva}', [ReservaController::class, 'show'])
-        ->name('reservas.show');
-
-    Route::get('/reservas/{reserva}/edit', [ReservaController::class, 'edit'])
-        ->name('reservas.edit');
-
-    Route::put('/reservas/{reserva}', [ReservaController::class, 'update'])
-        ->name('reservas.update');
-
-    Route::delete('/reservas/{reserva}', [ReservaController::class, 'destroy'])
-        ->name('reservas.destroy');
-
-/*
-    |--------------------------------------------------------------------------
-    | CALENDÁRIO
-    |--------------------------------------------------------------------------
-    */
-
-
+    // CALENDÁRIO
     Route::get('/calendario', [ReservaController::class, 'calendario'])->name('calendario');
     Route::get('/eventos', [ReservaController::class, 'eventos'])->name('eventos');
 
@@ -158,8 +111,4 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/reservas/eventos', [ReservaController::class, 'eventos'])
         ->name('reservas.eventos');
-
-
-    Route::get('/espacos/{espaco}', [EspacoController::class, 'show'])->name('espacos.show');
-
 });

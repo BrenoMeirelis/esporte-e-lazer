@@ -8,36 +8,57 @@ use Illuminate\Auth\Access\Response;
 
 class CidadePolicy
 {
-    // 🔥 LIBERA ADMIN GLOBAL
-    public function before(User $user, $ability)
+    public function before(User $user, string $ability): bool|null
     {
-        if (in_array($user->tipo, ['admin', 'super_admin'])) {
+        if ($user->tipo === 'super_admin') {
             return true;
         }
+
+        return null;
     }
 
-    public function index(User $user)
+    public function index(User $user): Response
     {
         return Response::allow();
     }
 
-    public function show(User $user, Cidade $cidade)
+    public function show(User $user, Cidade $cidade): Response
     {
         return Response::allow();
     }
 
-    public function create(User $user)
+    public function create(User $user): Response
     {
-        return Response::deny(); // quem libera é o before()
+        return $user->tipo === 'super_admin'
+            ? Response::allow()
+            : Response::deny('Apenas Super Admin pode criar cidades.');
     }
 
-    public function update(User $user, Cidade $cidade)
+    public function update(User $user, Cidade $cidade): Response
     {
-        return Response::deny();
+        return $user->isAdminDaCidade($cidade->id)
+            ? Response::allow()
+            : Response::deny('Você não tem permissão para editar esta cidade.');
     }
 
-    public function delete(User $user, Cidade $cidade)
+    public function delete(User $user, Cidade $cidade): Response
     {
-        return Response::deny();
+        return $user->isSuperAdmin()
+            ? Response::allow()
+            : Response::deny('Apenas Super Admin pode excluir cidades.');
+    }
+
+    public function manageAdmins(User $user, Cidade $cidade): Response
+    {
+        return $user->isAdminDaCidade($cidade->id)
+            ? Response::allow()
+            : Response::deny('Você não pode gerenciar administradores desta cidade.');
+    }
+
+    public function inviteAdmins(User $user, Cidade $cidade): Response
+    {
+        return $user->isAdminDaCidade($cidade->id)
+            ? Response::allow()
+            : Response::deny('Você não pode convidar administradores para esta cidade.');
     }
 }

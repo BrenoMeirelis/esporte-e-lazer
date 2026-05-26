@@ -32,17 +32,23 @@ class ReservaPolicy
         return Response::allow();
     }
 
+    public function approve(User $user, Reserva $reserva)
+    {
+        return $user->isAdminDaCidade($reserva->espaco->cidade_id);
+    }
+
+    public function reject(User $user, Reserva $reserva)
+    {
+        return $user->isAdminDaCidade($reserva->espaco->cidade_id);
+    }
+
     public function update(User $user, Reserva $reserva)
     {
-        return $reserva->user_id == $user->id
-            ? Response::allow()
-            : Response::deny();
+        return $user->isAdminDaCidade($reserva->espaco->cidade_id);
     }
 
     public function delete(User $user, Reserva $reserva)
     {
-        return $reserva->user_id == $user->id
-            ? Response::allow()
-            : Response::deny();
+        return $user->isAdminDaCidade($reserva->espaco->cidade_id);
     }
 }

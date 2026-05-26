@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Espaco;
 use App\Models\Cidade;
 use App\Models\Categoria;
+use App\Models\Reserva;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use App\Models\Reserva;
 
 class EspacoController extends Controller
 {
@@ -15,9 +15,10 @@ class EspacoController extends Controller
 
     public function index($cidade_id)
     {
-        $this->authorize('index', Espaco::class);
-
         $cidade = Cidade::findOrFail($cidade_id);
+
+        $this->authorize('viewAny', [Espaco::class, $cidade]);
+
         $espacos = Espaco::where('cidade_id', $cidade_id)->get();
 
         return view('espacos.index', compact('espacos', 'cidade'));
@@ -25,14 +26,16 @@ class EspacoController extends Controller
 
     public function create($cidade_id = null)
     {
-        $this->authorize('create', Espaco::class);
-
         if (!$cidade_id) {
-            return redirect()->route('cidades.index')
-                ->with('error', 'Selecione uma cidade primeiro');
+            return redirect()
+                ->route('cidades.index')
+                ->with('error', 'Selecione uma cidade primeiro.');
         }
 
         $cidade = Cidade::findOrFail($cidade_id);
+
+        $this->authorize('create', [Espaco::class, $cidade]);
+
         $categorias = Categoria::where('cidade_id', $cidade_id)->get();
 
         return view('espacos.create', compact('cidade', 'categorias'));
@@ -40,24 +43,26 @@ class EspacoController extends Controller
 
     public function store(Request $request)
     {
-        $this->authorize('create', Espaco::class);
-
         $validated = $request->validate([
-            'titulo' => 'required|string|max:255',
-            'cidade_id' => 'required|exists:cidades,id',
-            'categoria_id' => 'required|exists:categorias,id',
-            'descricao' => 'nullable|string',
-            'horario_abertura' => 'nullable|date_format:H:i',
-            'horario_encerramento' => 'nullable|date_format:H:i',
-            'periodo_max_reserva' => 'nullable|integer|min:0',
-            'min_participantes' => 'nullable|integer|min:0',
-            'max_participantes' => 'nullable|integer|min:0',
-            'localizacao' => 'nullable|string|max:255',
-            'regras' => 'nullable|string',
-            'observacoes' => 'nullable|string',
-            'materiais' => 'nullable|string',
-            'responsavel' => 'nullable|string|max:255',
+            'titulo' => ['required', 'string', 'max:255'],
+            'cidade_id' => ['required', 'exists:cidades,id'],
+            'categoria_id' => ['required', 'exists:categorias,id'],
+            'descricao' => ['nullable', 'string'],
+            'horario_abertura' => ['nullable', 'date_format:H:i'],
+            'horario_encerramento' => ['nullable', 'date_format:H:i'],
+            'periodo_max_reserva' => ['nullable', 'integer', 'min:0'],
+            'min_participantes' => ['nullable', 'integer', 'min:0'],
+            'max_participantes' => ['nullable', 'integer', 'min:0'],
+            'localizacao' => ['nullable', 'string', 'max:255'],
+            'regras' => ['nullable', 'string'],
+            'observacoes' => ['nullable', 'string'],
+            'materiais' => ['nullable', 'string'],
+            'responsavel' => ['nullable', 'string', 'max:255'],
         ]);
+
+        $cidade = Cidade::findOrFail($validated['cidade_id']);
+
+        $this->authorize('create', [Espaco::class, $cidade]);
 
         $validated['periodo_max_reserva'] = $validated['periodo_max_reserva'] ?? 0;
         $validated['min_participantes'] = $validated['min_participantes'] ?? 0;
@@ -65,13 +70,25 @@ class EspacoController extends Controller
 
         Espaco::create($validated);
 
-        return redirect()->route('cidades.show', $validated['cidade_id'])
+        return redirect()
+            ->route('cidades.show', $validated['cidade_id'])
             ->with('success', 'Espaço cadastrado com sucesso!');
+    }
+
+    public function show(Espaco $espaco)
+    {
+        $espaco->load(['cidade', 'categoria']);
+
+        $reservas = Reserva::where('espaco_id', $espaco->id)->get();
+
+        return view('espacos.show', compact('espaco', 'reservas'));
     }
 
     public function edit(Espaco $espaco)
     {
-        $categorias = Categoria::all();
+        $this->authorize('update', $espaco);
+
+        $categorias = Categoria::where('cidade_id', $espaco->cidade_id)->get();
 
         return view('espacos.edit', compact('espaco', 'categorias'));
     }
@@ -81,20 +98,20 @@ class EspacoController extends Controller
         $this->authorize('update', $espaco);
 
         $validated = $request->validate([
-            'titulo' => 'required|string|max:255',
-            'cidade_id' => 'required|exists:cidades,id',
-            'categoria_id' => 'required|exists:categorias,id',
-            'descricao' => 'nullable|string',
-            'horario_abertura' => 'nullable|date_format:H:i',
-            'horario_encerramento' => 'nullable|date_format:H:i',
-            'periodo_max_reserva' => 'nullable|integer|min:0',
-            'localizacao' => 'nullable|string|max:255',
-            'regras' => 'nullable|string',
-            'observacoes' => 'nullable|string',
-            'min_participantes' => 'nullable|integer|min:0',
-            'max_participantes' => 'nullable|integer|min:0',
-            'materiais' => 'nullable|string',
-            'responsavel' => 'nullable|string|max:255',
+            'titulo' => ['required', 'string', 'max:255'],
+            'cidade_id' => ['required', 'exists:cidades,id'],
+            'categoria_id' => ['required', 'exists:categorias,id'],
+            'descricao' => ['nullable', 'string'],
+            'horario_abertura' => ['nullable', 'date_format:H:i'],
+            'horario_encerramento' => ['nullable', 'date_format:H:i'],
+            'periodo_max_reserva' => ['nullable', 'integer', 'min:0'],
+            'localizacao' => ['nullable', 'string', 'max:255'],
+            'regras' => ['nullable', 'string'],
+            'observacoes' => ['nullable', 'string'],
+            'min_participantes' => ['nullable', 'integer', 'min:0'],
+            'max_participantes' => ['nullable', 'integer', 'min:0'],
+            'materiais' => ['nullable', 'string'],
+            'responsavel' => ['nullable', 'string', 'max:255'],
         ]);
 
         $validated['periodo_max_reserva'] = $validated['periodo_max_reserva'] ?? 0;
@@ -103,9 +120,9 @@ class EspacoController extends Controller
 
         $espaco->update($validated);
 
-        return redirect()->route('espacos.index', [
-            'cidade' => $validated['cidade_id']
-        ])->with('success', 'Espaço atualizado com sucesso!');
+        return redirect()
+            ->route('espacos.index', ['cidade' => $validated['cidade_id']])
+            ->with('success', 'Espaço atualizado com sucesso!');
     }
 
     public function destroy(Espaco $espaco)
@@ -116,20 +133,20 @@ class EspacoController extends Controller
 
         $espaco->delete();
 
-        return redirect()->route('espacos.index', [
-            'cidade' => $cidade_id
-        ])->with('success', 'Espaço excluído com sucesso!');
+        return redirect()
+            ->route('espacos.index', ['cidade' => $cidade_id])
+            ->with('success', 'Espaço excluído com sucesso!');
     }
 
     public function buscar(Request $request)
     {
         $query = Espaco::query();
 
-        if ($request->titulo) {
+        if ($request->filled('titulo')) {
             $query->where('titulo', 'like', '%' . $request->titulo . '%');
         }
 
-        if ($request->categoria_id) {
+        if ($request->filled('categoria_id')) {
             $query->where('categoria_id', $request->categoria_id);
         }
 
@@ -137,15 +154,5 @@ class EspacoController extends Controller
         $categorias = Categoria::all();
 
         return view('espacos.busca', compact('espacos', 'categorias'));
-    }
-
-    public function show(Espaco $espaco)
-    {
-        $espaco->load(['cidade', 'categoria']);
-
-        $reservas = Reserva::where('espaco_id', $espaco->id)
-            ->get();
-
-        return view('espacos.show', compact('espaco', 'reservas'));
     }
 }

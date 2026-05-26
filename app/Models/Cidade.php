@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Espaco;
 use App\Models\Area;
+use App\Models\Categoria;
 
 class Cidade extends Model
 {
@@ -13,22 +14,14 @@ class Cidade extends Model
         'nome',
         'cep',
         'uf',
-        'email'
+        'email',
     ];
 
-    // Relacionamento com Espaços
     public function espacos()
     {
         return $this->hasMany(Espaco::class);
     }
 
-    // Relacionamento com Usuários autorizados
-    public function usuarios()
-    {
-        return $this->belongsToMany(User::class);
-    }
-
-    // Relacionamento com Áreas
     public function areas()
     {
         return $this->hasMany(Area::class);
@@ -37,5 +30,11 @@ class Cidade extends Model
     public function categorias()
     {
         return $this->hasMany(Categoria::class);
+    }
+
+    public function administradores()
+    {
+        return $this->belongsToMany(User::class, 'cidade_user')
+            ->withTimestamps();
     }
 }
