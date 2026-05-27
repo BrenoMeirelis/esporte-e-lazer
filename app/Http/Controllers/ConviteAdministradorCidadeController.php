@@ -1,80 +1,114 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Http\Controllers;
 
 use App\Models\ConviteAdministradorCidade;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
-class ConviteAdminCidadeNotification extends Notification implements ShouldQueue
+class ConviteAdministradorCidadeController extends Controller
 {
-    use Queueable;
-
-    public ConviteAdministradorCidade $convite;
-
     /**
-     * Create a new notification instance.
+     * Aceitar convite de administrador da cidade.
      */
-    public function __construct(ConviteAdministradorCidade $convite)
+    public function aceitar(string $token)
     {
-        $this->convite = $convite;
+        $convite = ConviteAdministradorCidade::with('cidade')
+            ->where('token', $token)
+            ->first();
+
+        if (! $convite) {
+            return redirect()
+                ->route('login')
+                ->with('error', 'Convite inválido.');
+        }
+
+        if ($convite->status === 'aceito') {
+            return redirect()
+                ->route('login')
+                ->with('info', 'Este convite já foi aceito.');
+        }
+
+        if ($convite->status === 'rejeitado') {
+            return redirect()
+                ->route('login')
+                ->with('info', 'Este convite já foi rejeitado.');
+        }
+
+        if (! Auth::check()) {
+            session([
+                'convite_admin_cidade_token' => $token,
+            ]);
+
+            return redirect()
+                ->route('login')
+                ->with('info', 'Faça login para aceitar o convite.');
+        }
+
+        /** @var User $user */
+        $user = Auth::user();
+
+        if ($user->email !== $convite->email) {
+            return redirect()
+                ->route('dashboard')
+                ->with('error', 'Este convite pertence a outro e-mail.');
+        }
+
+        // Vincula o usuário como administrador da cidade
+        $cidade = $convite->cidade;
+
+        $cidade->administradores()->syncWithoutDetaching([
+            $user->id,
+        ]);
+
+        // Atualiza status do convite
+        $convite->update([
+            'status' => 'aceito',
+            'aceito_em' => now(),
+        ]);
+
+        return redirect()
+            ->route('dashboard')
+            ->with(
+                'success',
+                'Convite aceito com sucesso. Agora você é administrador da cidade ' . $cidade->nome . '.'
+            );
     }
 
     /**
-     * Get the notification's delivery channels.
+     * Rejeitar convite de administrador da cidade.
      */
-    public function via(object $notifiable): array
+    public function rejeitar(string $token)
     {
-        return ['mail'];
-    }
+        $convite = ConviteAdministradorCidade::where('token', $token)
+            ->first();
 
-    /**
-     * Build the mail representation of the notification.
-     */
-    public function toMail(object $notifiable): MailMessage
-    {
-        $cidade = $this->convite->cidade;
+        if (! $convite) {
+            return redirect()
+                ->route('login')
+                ->with('error', 'Convite inválido.');
+        }
 
-        $aceitarUrl = route(
-            'convites.admin-cidade.aceitar',
-            $this->convite->token
-        );
+        if ($convite->status === 'aceito') {
+            return redirect()
+                ->route('login')
+                ->with('info', 'Este convite já foi aceito.');
+        }
 
-        $rejeitarUrl = route(
-            'convites.admin-cidade.rejeitar',
-            $this->convite->token
-        );
+        if ($convite->status === 'rejeitado') {
+            return redirect()
+                ->route('login')
+                ->with('info', 'Este convite já foi rejeitado.');
+        }
 
-        return (new MailMessage)
-            ->subject('Convite para administrar cidade')
-            ->greeting('Olá, ' . $notifiable->name . '!')
-            ->line('Você recebeu um convite para se tornar administrador da cidade abaixo:')
-            ->line('🏙 Cidade: ' . $cidade->nome)
-            ->line('📍 UF: ' . $cidade->uf)
-            ->line('Ao aceitar o convite, você poderá:')
-            ->line('• Criar espaços')
-            ->line('• Editar espaços')
-            ->line('• Excluir espaços')
-            ->line('• Gerenciar categorias')
-            ->line('• Aprovar e rejeitar reservas')
-            ->action('Aceitar convite', $aceitarUrl)
-            ->line('Caso não queira aceitar o convite, utilize o link abaixo:')
-            ->action('Rejeitar convite', $rejeitarUrl)
-            ->line('Se você não esperava este convite, ignore este e-mail.');
-    }
+        $convite->update([
+            'status' => 'rejeitado',
+            'rejeitado_em' => now(),
+        ]);
 
-    /**
-     * Get the array representation of the notification.
-     */
-    public function toArray(object $notifiable): array
-    {
-        return [
-            'cidade_id' => $this->convite->cidade_id,
-            'cidade_nome' => $this->convite->cidade->nome,
-            'email' => $this->convite->email,
-            'status' => $this->convite->status,
-        ];
+        return redirect()
+            ->route('login')
+            ->with('success', 'Convite rejeitado com sucesso.');
     }
 }
