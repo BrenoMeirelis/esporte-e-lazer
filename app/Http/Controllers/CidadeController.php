@@ -41,6 +41,8 @@ class CidadeController extends Controller
 
     public function show(Cidade $cidade)
     {
+        $this->authorize('show', $cidade);
+
         $cidade->load([
             'espacos',
             'administradores',

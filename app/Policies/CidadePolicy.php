@@ -24,12 +24,14 @@ class CidadePolicy
 
     public function show(User $user, Cidade $cidade): Response
     {
-        return Response::allow();
+        return $user->isAdminDaCidade($cidade->id)
+            ? Response::allow()
+            : Response::deny('Você não pode gerenciar a cidade.');
     }
 
     public function create(User $user): Response
     {
-        return $user->tipo === 'super_admin'
+        return $user->is_admin == 1
             ? Response::allow()
             : Response::deny('Apenas Super Admin pode criar cidades.');
     }

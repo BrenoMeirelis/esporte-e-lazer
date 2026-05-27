@@ -29,7 +29,7 @@ class ConviteAdministradorCidadeController extends Controller
                 ->route('login')
                 ->with('info', 'Este convite já foi aceito.');
         }
-
+        
         if ($convite->status === 'rejeitado') {
             return redirect()
                 ->route('login')
