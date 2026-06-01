@@ -43,8 +43,6 @@ class EspacoPolicy
 
     public function viewAny(User $user, Cidade $cidade)
     {
-        return $user->isAdminDaCidade($cidade->id)
-            ? Response::allow()
-            : Response::deny();
+        return Response::allow();
     }
 }

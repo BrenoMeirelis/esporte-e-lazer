@@ -50,7 +50,7 @@ class ConviteAdminCidadeNotification extends Notification implements ShouldQueue
             ->line('• Aprovar e rejeitar reservas')
             ->action('Aceitar convite', $aceitarUrl)
             ->line('Caso não queira aceitar o convite, utilize o link abaixo:')
-            ->action('Rejeitar convite', $rejeitarUrl)
+            ->line($rejeitarUrl)
             ->line('Se você não esperava este convite, ignore este e-mail.');
     }
 

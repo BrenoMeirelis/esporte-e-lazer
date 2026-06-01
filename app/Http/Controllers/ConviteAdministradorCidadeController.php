@@ -19,10 +19,11 @@ class ConviteAdministradorCidadeController extends Controller
         ]);
 
         $convite = ConviteAdministradorCidade::create([
-            'cidade_id' => $cidade->id,
-            'email' => $request->email,
-            'token' => Str::random(64),
-            'status' => 'pendente',
+            'cidade_id'      => $cidade->id,
+            'email'          => $request->email,
+            'token'          => Str::random(64),
+            'status'         => 'pendente',
+            'convidado_por'  => auth()->id(),
         ]);
 
         $usuario = User::where('email', $request->email)->first();
@@ -73,7 +74,7 @@ class ConviteAdministradorCidadeController extends Controller
 
         if ($user->email !== $convite->email) {
             return redirect()
-                ->route('dashboard')
+                ->route('home')
                 ->with('error', 'Este convite pertence a outro e-mail.');
         }
 
@@ -84,12 +85,12 @@ class ConviteAdministradorCidadeController extends Controller
         ]);
 
         $convite->update([
-            'status' => 'aceito',
+            'status'    => 'aceito',
             'aceito_em' => now(),
         ]);
 
         return redirect()
-            ->route('dashboard')
+            ->route('home')
             ->with(
                 'success',
                 'Convite aceito com sucesso. Agora você é administrador da cidade ' . $cidade->nome . '.'
@@ -120,7 +121,7 @@ class ConviteAdministradorCidadeController extends Controller
         }
 
         $convite->update([
-            'status' => 'rejeitado',
+            'status'       => 'rejeitado',
             'rejeitado_em' => now(),
         ]);
 
