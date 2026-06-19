@@ -284,155 +284,142 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
 
             const horaInicio = document.querySelector('input[name="hora_inicio"]');
             const horaFim = document.querySelector('input[name="hora_fim"]');
 
+            const horaAbertura = "{{ $espaco->horario_abertura }}";
+            const horaEncerramento = "{{ $espaco->horario_encerramento }}";
+
+            const minParticipantes = {{ $espaco->min_participantes ?? 1 }};
+            const maxParticipantes = {{ $espaco->max_participantes ?? 999 }};
+
+            const numeroParticipantes = document.getElementById('numero_participantes');
+            const participantesArea = document.getElementById('participantes-area');
+
             function validarHorario() {
 
-                if (horaInicio.value && horaFim.value) {
+                horaInicio.setCustomValidity('');
+                horaFim.setCustomValidity('');
 
-                    if (horaFim.value <= horaInicio.value) {
-
-                        horaFim.setCustomValidity(
-                            'A hora final deve ser maior que a hora inicial.'
-                        );
-
-                    } else {
-
-                        horaFim.setCustomValidity('');
-
-                    }
-
+                if (!horaInicio.value || !horaFim.value) {
+                    return;
                 }
 
+                if (horaInicio.value < horaAbertura) {
+
+                    horaInicio.setCustomValidity(
+                        `O espaço funciona somente a partir das ${horaAbertura}.`
+                    );
+
+                    horaInicio.reportValidity();
+                    return;
+                }
+
+                if (horaFim.value > horaEncerramento) {
+
+                    horaFim.setCustomValidity(
+                        `O espaço funciona somente até ${horaEncerramento}.`
+                    );
+
+                    horaFim.reportValidity();
+                    return;
+                }
+
+                if (horaFim.value <= horaInicio.value) {
+
+                    horaFim.setCustomValidity(
+                        'A hora final deve ser maior que a hora inicial.'
+                    );
+
+                    horaFim.reportValidity();
+                    return;
+                }
             }
 
-            horaInicio.addEventListener('change', validarHorario);
-            horaFim.addEventListener('change', validarHorario);
+            horaInicio.addEventListener('input', validarHorario);
+            horaFim.addEventListener('input', validarHorario);
 
-        });
+            function gerarParticipantes() {
 
-        const horaAbertura = "{{ $espaco->horario_abertura }}";
-        const horaEncerramento = "{{ $espaco->horario_encerramento }}";
-        const minParticipantes = {{ $espaco->min_participantes ?? 1 }};
-        const maxParticipantes = {{ $espaco->max_participantes ?? 999 }};
+                let total = parseInt(numeroParticipantes.value || 0);
 
-        const numeroParticipantes = document.getElementById('numero_participantes');
-        const participantesArea = document.getElementById('participantes-area');
+                if (total < minParticipantes) {
+                    numeroParticipantes.setCustomValidity(
+                        'O mínimo permitido é ' + minParticipantes + ' participantes.'
+                    );
+                    return;
+                }
 
-        function validarHorario() {
+                if (total > maxParticipantes) {
+                    numeroParticipantes.setCustomValidity(
+                        'O máximo permitido é ' + maxParticipantes + ' participantes.'
+                    );
+                    return;
+                }
 
-            horaInicio.setCustomValidity('');
-            horaFim.setCustomValidity('');
+                numeroParticipantes.setCustomValidity('');
+                participantesArea.innerHTML = '';
 
-            if (!horaInicio.value || !horaFim.value) {
-                return;
+                for (let i = 1; i <= total; i++) {
+
+                    participantesArea.innerHTML += `
+                        <div class="mb-3 p-3" style="border:1.5px solid #e8e7e0;border-radius:16px;background:#fafaf8;">
+                            <strong style="display:block;margin-bottom:12px;color:#1a1a2e;">
+                                Participante ${i}
+                            </strong>
+
+                            <div class="mb-3">
+                                <label class="form-label">Nome</label>
+                                <input
+                                    type="text"
+                                    name="participantes[${i - 1}][nome]"
+                                    class="form-control"
+                                    maxlength="255"
+                                    required>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Documento</label>
+                                <input
+                                    type="text"
+                                    name="participantes[${i - 1}][documento]"
+                                    class="form-control documento-participante"
+                                    maxlength="14"
+                                    placeholder="CPF"
+                                    required>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                aplicarMascaraDocumentos();
             }
 
-            // Valida horário de abertura
-            if (horaInicio.value < horaAbertura) {
+            function aplicarMascaraDocumentos() {
 
-                horaInicio.setCustomValidity(
-                    `O espaço funciona somente a partir das ${horaAbertura}.`
-                );
+                document.querySelectorAll('.documento-participante').forEach(input => {
 
-                horaInicio.reportValidity();
-                return;
-            }
+                    input.addEventListener('input', function () {
 
-            // Valida horário de encerramento
-            if (horaFim.value > horaEncerramento) {
+                        let value = this.value.replace(/\D/g, '').slice(0, 11);
 
-                horaFim.setCustomValidity(
-                    `O espaço funciona somente até ${horaEncerramento}.`
-                );
-
-                horaFim.reportValidity();
-                return;
-            }
-
-            // Hora final menor que inicial
-            if (horaFim.value <= horaInicio.value) {
-
-                horaFim.setCustomValidity(
-                    'A hora final deve ser maior que a hora inicial.'
-                );
-
-                horaFim.reportValidity();
-                return;
-            }
-        }
-
-        horaInicio.addEventListener('input', validarHorario);
-        horaFim.addEventListener('input', validarHorario);
-
-        function gerarParticipantes() {
-            let total = parseInt(numeroParticipantes.value || 0);
-
-            if (total < minParticipantes) {
-                numeroParticipantes.setCustomValidity('O mínimo permitido é ' + minParticipantes + ' participantes.');
-                return;
-            }
-
-            if (total > maxParticipantes) {
-                numeroParticipantes.setCustomValidity('O máximo permitido é ' + maxParticipantes + ' participantes.');
-                return;
-            }
-
-            numeroParticipantes.setCustomValidity('');
-            participantesArea.innerHTML = '';
-
-            for (let i = 1; i <= total; i++) {
-                participantesArea.innerHTML += `
-            <div class="mb-3 p-3" style="border:1.5px solid #e8e7e0;border-radius:16px;background:#fafaf8;">
-                <strong style="display:block;margin-bottom:12px;color:#1a1a2e;">
-                    Participante ${i}
-                </strong>
-
-                <div class="mb-3">
-                    <label class="form-label">Nome</label>
-                    <input type="text"
-                        name="participantes[${i - 1}][nome]"
-                        class="form-control"
-                        maxlength="255"
-                        required>
-                </div>
-
-                <div>
-                    <label class="form-label">Documento</label>
-                    <input type="text"
-                        name="participantes[${i - 1}][documento]"
-                        class="form-control documento-participante"
-                        maxlength="14"
-                        placeholder="CPF ou RG"
-                        required>
-                </div>
-            </div>
-        `;
-            }
-
-            aplicarMascaraDocumentos();
-        }
-
-        function aplicarMascaraDocumentos() {
-            document.querySelectorAll('.documento-participante').forEach(input => {
-                input.addEventListener('input', function() {
-                    let value = this.value.replace(/\D/g, '').slice(0, 11);
-
-                    if (value.length > 9) {
                         value = value.replace(/(\d{3})(\d)/, '$1.$2');
                         value = value.replace(/(\d{3})(\d)/, '$1.$2');
                         value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-                    }
 
-                    this.value = value;
+                        this.value = value;
+                    });
+
                 });
-            });
-        }
 
-        numeroParticipantes.addEventListener('input', gerarParticipantes);
-        gerarParticipantes();
-    </script>
+            }
+
+            numeroParticipantes.addEventListener('input', gerarParticipantes);
+
+            gerarParticipantes();
+
+        });
+        </script>
 @endsection

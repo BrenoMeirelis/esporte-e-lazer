@@ -15,8 +15,10 @@ class Reserva extends Model
         'data',
         'hora_inicio',
         'hora_fim',
+        'numero_participantes',
+        'participantes',
         'status',
-        'motivo_recusa',
+        'motivo_recusa'
     ];
 
     protected $casts = [

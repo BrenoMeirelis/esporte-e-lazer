@@ -22,9 +22,15 @@ class ReservaPolicy
 
     public function show(User $user, Reserva $reserva)
     {
-        return $reserva->user_id == $user->id
-            ? Response::allow()
-            : Response::deny();
+        if ($reserva->user_id == $user->id) {
+            return Response::allow();
+        }
+
+        if ($user->isAdminDaCidade($reserva->espaco->cidade_id)) {
+            return Response::allow();
+        }
+
+        return Response::deny();
     }
 
     public function create(User $user)

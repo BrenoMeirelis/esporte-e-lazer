@@ -378,6 +378,8 @@
             @endif
         </div>
 
+
+
         <!-- FILTROS -->
         <div class="filter-bar">
             <button class="filter-btn active" data-status="">Todas</button>
@@ -424,6 +426,51 @@
                                 <i class="bi bi-hourglass-split"></i> Pendente
                             @endif
                         </div>
+
+                        @can('approve', $reserva)
+                            @if ($status === 'pendente')
+                                <div style="display:flex;gap:8px;margin-top:10px;">
+
+                                    <form action="{{ route('reservas.aprovar', $reserva->id) }}" method="POST"
+                                        onclick="event.stopPropagation();">
+                                        @csrf
+                                        @method('PATCH')
+
+                                        <button type="submit"
+                                            style="
+                        background:#16a34a;
+                        color:white;
+                        border:none;
+                        border-radius:8px;
+                        padding:6px 12px;
+                        font-size:12px;
+                        cursor:pointer;">
+                                            ✓ Aprovar
+                                        </button>
+                                    </form>
+
+                                    <form action="{{ route('reservas.rejeitar', $reserva->id) }}" method="POST"
+                                        onclick="event.stopPropagation();">
+                                        @csrf
+                                        @method('PATCH')
+
+                                        <button type="submit"
+                                            style="
+                        background:#dc2626;
+                        color:white;
+                        border:none;
+                        border-radius:8px;
+                        padding:6px 12px;
+                        font-size:12px;
+                        cursor:pointer;">
+                                            ✕ Recusar
+                                        </button>
+                                    </form>
+
+                                </div>
+                            @endif
+                        @endcan
+
                     </div>
                     <div class="reserva-action">
                         <i class="bi bi-chevron-right"></i>

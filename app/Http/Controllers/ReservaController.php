@@ -3,15 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Reserva;
-use Illuminate\Http\Request;
 use App\Models\Espaco;
+use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ReservaController extends Controller
 {
     use AuthorizesRequests;
 
-    // 🔥 EVENTOS DO CALENDÁRIO
+    /*
+    |--------------------------------------------------------------------------
+    | EVENTOS CALENDÁRIO
+    |--------------------------------------------------------------------------
+    */
     public function eventos()
     {
         $reservas = Reserva::selectRaw('data, COUNT(*) as total')
@@ -31,31 +35,75 @@ class ReservaController extends Controller
         return response()->json($eventos);
     }
 
-    // 🔥 TELA DO CALENDÁRIO
+    /*
+    |--------------------------------------------------------------------------
+    | CALENDÁRIO
+    |--------------------------------------------------------------------------
+    */
     public function calendario()
     {
         return view('reservas.calendario');
     }
 
-    // 🔥 LISTAGEM
+    /*
+    |--------------------------------------------------------------------------
+    | LISTAGEM
+    |--------------------------------------------------------------------------
+    */
     public function index()
     {
         $this->authorize('index', Reserva::class);
 
         $user = auth()->user();
 
-        if ($user->tipo == 'admin') {
-            $reservas = Reserva::with('espaco', 'user')->get();
-        } else {
-            $reservas = Reserva::with('espaco', 'user')
-                ->where('user_id', $user->id)
-                ->get();
+        // Super Admin vê tudo
+        if ($user->tipo === 'super_admin') {
+
+            $reservas = Reserva::with([
+                'espaco.cidade',
+                'user'
+            ])
+            ->latest()
+            ->get();
+
+        }
+        // Admin de cidade
+        elseif ($user->cidadesAdministradas()->exists()) {
+
+            $cidadeIds = $user->cidadesAdministradas()
+                ->pluck('cidades.id');
+
+            $reservas = Reserva::with([
+                'espaco.cidade',
+                'user'
+            ])
+            ->whereHas('espaco', function ($query) use ($cidadeIds) {
+                $query->whereIn('cidade_id', $cidadeIds);
+            })
+            ->latest()
+            ->get();
+
+        }
+        // Usuário comum
+        else {
+
+            $reservas = Reserva::with([
+                'espaco.cidade',
+                'user'
+            ])
+            ->where('user_id', $user->id)
+            ->latest()
+            ->get();
         }
 
         return view('reservas.index', compact('reservas'));
     }
 
-    // 🔥 FORM DE RESERVA (CORRIGIDO AQUI)
+    /*
+    |--------------------------------------------------------------------------
+    | FORM NOVA RESERVA
+    |--------------------------------------------------------------------------
+    */
     public function create($espaco_id)
     {
         $this->authorize('create', Reserva::class);
@@ -65,6 +113,11 @@ class ReservaController extends Controller
         return view('reservas.create', compact('espaco'));
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | SALVAR
+    |--------------------------------------------------------------------------
+    */
     public function store(Request $request)
     {
         $request->validate([
@@ -112,6 +165,7 @@ class ReservaController extends Controller
             'hora_fim' => $request->hora_fim,
             'numero_participantes' => $request->numero_participantes,
             'participantes' => $request->participantes,
+            'status' => 'pendente'
         ]);
 
         return redirect()
@@ -119,15 +173,26 @@ class ReservaController extends Controller
             ->with('success', 'Reserva realizada com sucesso!');
     }
 
-    // 🔥 MOSTRAR
+    /*
+    |--------------------------------------------------------------------------
+    | DETALHES
+    |--------------------------------------------------------------------------
+    */
     public function show(Reserva $reserva)
     {
-        $this->authorize('show', $reserva);
+        $reserva->load([
+            'espaco.cidade',
+            'user'
+        ]);
 
         return view('reservas.show', compact('reserva'));
     }
 
-    // 🔥 EDITAR
+    /*
+    |--------------------------------------------------------------------------
+    | EDITAR
+    |--------------------------------------------------------------------------
+    */
     public function edit(Reserva $reserva)
     {
         $this->authorize('update', $reserva);
@@ -137,7 +202,11 @@ class ReservaController extends Controller
         return view('reservas.edit', compact('reserva', 'espacos'));
     }
 
-    // 🔥 ATUALIZAR
+    /*
+    |--------------------------------------------------------------------------
+    | ATUALIZAR
+    |--------------------------------------------------------------------------
+    */
     public function update(Request $request, Reserva $reserva)
     {
         $this->authorize('update', $reserva);
@@ -154,13 +223,20 @@ class ReservaController extends Controller
             ->where('id', '!=', $reserva->id)
             ->where(function ($query) use ($request) {
 
-                $query->whereBetween('hora_inicio', [$request->hora_inicio, $request->hora_fim])
-                    ->orWhereBetween('hora_fim', [$request->hora_inicio, $request->hora_fim])
-                    ->orWhere(function ($q) use ($request) {
-                        $q->where('hora_inicio', '<=', $request->hora_inicio)
-                            ->where('hora_fim', '>=', $request->hora_fim);
-                    });
-            })->exists();
+                $query->whereBetween('hora_inicio', [
+                    $request->hora_inicio,
+                    $request->hora_fim
+                ])
+                ->orWhereBetween('hora_fim', [
+                    $request->hora_inicio,
+                    $request->hora_fim
+                ])
+                ->orWhere(function ($q) use ($request) {
+                    $q->where('hora_inicio', '<=', $request->hora_inicio)
+                        ->where('hora_fim', '>=', $request->hora_fim);
+                });
+            })
+            ->exists();
 
         if ($existeReserva) {
             return back()->with('erro', 'Este horário já está reservado!');
@@ -173,21 +249,32 @@ class ReservaController extends Controller
             'hora_fim'
         ]));
 
-        return redirect()->route('reservas.index')
+        return redirect()
+            ->route('reservas.index')
             ->with('sucesso', 'Reserva atualizada com sucesso!');
     }
 
-    // 🔥 DELETAR
+    /*
+    |--------------------------------------------------------------------------
+    | EXCLUIR
+    |--------------------------------------------------------------------------
+    */
     public function destroy(Reserva $reserva)
     {
         $this->authorize('delete', $reserva);
 
         $reserva->delete();
 
-        return redirect()->route('reservas.index')
+        return redirect()
+            ->route('reservas.index')
             ->with('sucesso', 'Reserva excluída com sucesso!');
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | APROVAR
+    |--------------------------------------------------------------------------
+    */
     public function aprovar(Reserva $reserva)
     {
         $this->authorize('approve', $reserva);
@@ -196,17 +283,22 @@ class ReservaController extends Controller
             'status' => 'aprovada'
         ]);
 
-        return back()->with('success', 'Reserva aprovada.');
+        return back()->with('success', 'Reserva aprovada com sucesso.');
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | RECUSAR
+    |--------------------------------------------------------------------------
+    */
     public function rejeitar(Reserva $reserva)
     {
         $this->authorize('reject', $reserva);
 
         $reserva->update([
-            'status' => 'rejeitada'
+            'status' => 'recusada'
         ]);
 
-        return back()->with('success', 'Reserva rejeitada.');
+        return back()->with('success', 'Reserva recusada com sucesso.');
     }
 }
