@@ -91,16 +91,21 @@
             box-shadow: none;
         }
 
+        /* Campo com erro destacado */
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            background-image: none;
+        }
+
         .btn-main {
             background: #1a1a2e;
             color: #fff;
             border: none;
-            padding: 14px 20px;
+            padding: 14px 32px;
             border-radius: 14px;
             font-size: 14px;
             font-weight: 600;
             transition: .2s;
-            width: 100%;
         }
 
         .btn-main:hover {
@@ -150,13 +155,8 @@
 
     <div class="page-header">
         <div class="container">
-
             <h1>Reservar Espaço</h1>
-
-            <p>
-                Escolha a data e horário da reserva
-            </p>
-
+            <p>Escolha a data e horário da reserva</p>
         </div>
     </div>
 
@@ -169,21 +169,27 @@
                 <div class="reserve-card">
 
                     @if (session('error'))
-                        <div class="alert alert-danger alert-modern">
+                        <div class="alert alert-danger alert-modern mb-4">
+                            <i class="bi bi-exclamation-circle me-2"></i>
                             {{ session('error') }}
                         </div>
                     @endif
 
+                    @if ($errors->any())
+                        <div class="alert alert-danger alert-modern mb-4">
+                            <i class="bi bi-exclamation-circle me-2"></i>
+                            <strong>Por favor, corrija os erros abaixo:</strong>
+                            <ul class="mb-0 mt-2">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <div class="space-box">
-
-                        <h3>
-                            📍 {{ $espaco->titulo }}
-                        </h3>
-
-                        <p>
-                            Faça sua reserva de forma rápida e organizada.
-                        </p>
-
+                        <h3>📍 {{ $espaco->titulo }}</h3>
+                        <p>Faça sua reserva de forma rápida e organizada.</p>
                     </div>
 
                     <form method="POST" action="{{ route('reservas.store') }}">
@@ -191,86 +197,89 @@
 
                         <input type="hidden" name="espaco_id" value="{{ $espaco->id }}">
 
+                        {{-- Data --}}
                         <div class="mb-4">
-
-                            <label class="form-label">
-                                Data da Reserva
-                            </label>
-
+                            <label class="form-label">Data da Reserva</label>
                             <div class="input-icon">
                                 <i class="bi bi-calendar-event"></i>
-
-                                <input type="date" name="data" class="form-control" value="{{ request('data') }}"
+                                <input
+                                    type="date"
+                                    name="data"
+                                    class="form-control @error('data') is-invalid @enderror"
+                                    value="{{ old('data', request('data')) }}"
                                     required>
                             </div>
-
+                            @error('data')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
                         </div>
 
+                        {{-- Horários --}}
                         <div class="row">
-
                             <div class="col-md-6 mb-4">
-
-                                <label class="form-label">
-                                    Hora Início
-                                </label>
-
+                                <label class="form-label">Hora Início</label>
                                 <div class="input-icon">
                                     <i class="bi bi-clock"></i>
-
-                                    <input type="time" name="hora_inicio" class="form-control" required>
+                                    <input
+                                        type="time"
+                                        name="hora_inicio"
+                                        class="form-control @error('hora_inicio') is-invalid @enderror"
+                                        value="{{ old('hora_inicio') }}"
+                                        required>
                                 </div>
-
+                                @error('hora_inicio')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
 
                             <div class="col-md-6 mb-4">
-
-                                <label class="form-label">
-                                    Hora Fim
-                                </label>
-
+                                <label class="form-label">Hora Fim</label>
                                 <div class="input-icon">
                                     <i class="bi bi-clock-history"></i>
-
-                                    <input type="time" name="hora_fim" class="form-control" required>
+                                    <input
+                                        type="time"
+                                        name="hora_fim"
+                                        class="form-control @error('hora_fim') is-invalid @enderror"
+                                        value="{{ old('hora_fim') }}"
+                                        required>
                                 </div>
-
+                                @error('hora_fim')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
-
                         </div>
 
-                        {{-- Lista de participantes --}}
+                        {{-- Número de participantes --}}
                         <div class="my-4">
-                            <label class="form-label">
-                                Número de Participantes
-                            </label>
-
-                            <input type="number" name="numero_participantes" id="numero_participantes" class="form-control"
-                                min="{{ $espaco->min_participantes ?? 1 }}" max="{{ $espaco->max_participantes ?? 999 }}"
-                                value="{{ old('numero_participantes', $espaco->min_participantes ?? 1) }}" required>
-
+                            <label class="form-label">Número de Participantes</label>
+                            <input
+                                type="number"
+                                name="numero_participantes"
+                                id="numero_participantes"
+                                class="form-control @error('numero_participantes') is-invalid @enderror"
+                                min="{{ $espaco->min_participantes ?? 1 }}"
+                                max="{{ $espaco->max_participantes ?? 999 }}"
+                                value="{{ old('numero_participantes', $espaco->min_participantes ?? 1) }}"
+                                required>
                             <small style="color:#888;">
                                 Permitido: mínimo {{ $espaco->min_participantes ?? 1 }} e máximo
                                 {{ $espaco->max_participantes ?? 'sem limite' }} participantes.
                             </small>
+                            @error('numero_participantes')
+                                <small class="text-danger d-block">{{ $message }}</small>
+                            @enderror
 
                             <div id="participantes-area"></div>
                         </div>
 
-
                         <div class="d-flex justify-content-between align-items-center mt-4">
-
                             <a href="{{ url()->previous() }}" class="btn-soft">
-
                                 <i class="bi bi-arrow-left"></i>
                                 Voltar
                             </a>
-
                             <button type="submit" class="btn-main">
-
                                 Confirmar Reserva
-
                             </button>
-
                         </div>
 
                     </form>
@@ -283,56 +292,56 @@
 
     </div>
 
+    {{-- Dados de participantes vindos do old() para restaurar após erro --}}
+    <script>
+        const oldParticipantes = @json(old('participantes', []));
+    </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
             const horaInicio = document.querySelector('input[name="hora_inicio"]');
-            const horaFim = document.querySelector('input[name="hora_fim"]');
+            const horaFim    = document.querySelector('input[name="hora_fim"]');
 
-            const horaAbertura = "{{ $espaco->horario_abertura }}";
+            const horaAbertura    = "{{ $espaco->horario_abertura }}";
             const horaEncerramento = "{{ $espaco->horario_encerramento }}";
 
             const minParticipantes = {{ $espaco->min_participantes ?? 1 }};
             const maxParticipantes = {{ $espaco->max_participantes ?? 999 }};
 
             const numeroParticipantes = document.getElementById('numero_participantes');
-            const participantesArea = document.getElementById('participantes-area');
+            const participantesArea   = document.getElementById('participantes-area');
 
+            // ------------------------------------------------------------------
+            // Validação de horário no front-end
+            // ------------------------------------------------------------------
             function validarHorario() {
 
                 horaInicio.setCustomValidity('');
                 horaFim.setCustomValidity('');
 
-                if (!horaInicio.value || !horaFim.value) {
-                    return;
-                }
+                if (!horaInicio.value || !horaFim.value) return;
 
                 if (horaInicio.value < horaAbertura) {
-
                     horaInicio.setCustomValidity(
                         `O espaço funciona somente a partir das ${horaAbertura}.`
                     );
-
                     horaInicio.reportValidity();
                     return;
                 }
 
                 if (horaFim.value > horaEncerramento) {
-
                     horaFim.setCustomValidity(
                         `O espaço funciona somente até ${horaEncerramento}.`
                     );
-
                     horaFim.reportValidity();
                     return;
                 }
 
                 if (horaFim.value <= horaInicio.value) {
-
                     horaFim.setCustomValidity(
                         'A hora final deve ser maior que a hora inicial.'
                     );
-
                     horaFim.reportValidity();
                     return;
                 }
@@ -341,6 +350,10 @@
             horaInicio.addEventListener('input', validarHorario);
             horaFim.addEventListener('input', validarHorario);
 
+            // ------------------------------------------------------------------
+            // Gera campos de participantes preservando dados já digitados
+            // e restaurando valores do old() em caso de erro
+            // ------------------------------------------------------------------
             function gerarParticipantes() {
 
                 let total = parseInt(numeroParticipantes.value || 0);
@@ -360,9 +373,25 @@
                 }
 
                 numeroParticipantes.setCustomValidity('');
+
+                // Salva valores dos campos que já existem na tela
+                const valoresExistentes = {};
+                participantesArea.querySelectorAll('[name^="participantes["]').forEach(input => {
+                    valoresExistentes[input.name] = input.value;
+                });
+
                 participantesArea.innerHTML = '';
 
                 for (let i = 1; i <= total; i++) {
+
+                    // Prioridade: campo já digitado > old() do Laravel > vazio
+                    const nomeKey      = `participantes[${i - 1}][nome]`;
+                    const documentoKey = `participantes[${i - 1}][documento]`;
+
+                    const nomeVal      = valoresExistentes[nomeKey]
+                                         ?? (oldParticipantes[i - 1]?.nome ?? '');
+                    const documentoVal = valoresExistentes[documentoKey]
+                                         ?? (oldParticipantes[i - 1]?.documento ?? '');
 
                     participantesArea.innerHTML += `
                         <div class="mb-3 p-3" style="border:1.5px solid #e8e7e0;border-radius:16px;background:#fafaf8;">
@@ -374,9 +403,10 @@
                                 <label class="form-label">Nome</label>
                                 <input
                                     type="text"
-                                    name="participantes[${i - 1}][nome]"
+                                    name="${nomeKey}"
                                     class="form-control"
                                     maxlength="255"
+                                    value="${escapeHtml(nomeVal)}"
                                     required>
                             </div>
 
@@ -384,10 +414,11 @@
                                 <label class="form-label">Documento</label>
                                 <input
                                     type="text"
-                                    name="participantes[${i - 1}][documento]"
+                                    name="${documentoKey}"
                                     class="form-control documento-participante"
                                     maxlength="14"
                                     placeholder="CPF"
+                                    value="${escapeHtml(documentoVal)}"
                                     required>
                             </div>
                         </div>
@@ -397,6 +428,18 @@
                 aplicarMascaraDocumentos();
             }
 
+            // Escapa caracteres especiais para evitar XSS ao inserir via innerHTML
+            function escapeHtml(str) {
+                return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+            }
+
+            // ------------------------------------------------------------------
+            // Máscara de CPF
+            // ------------------------------------------------------------------
             function aplicarMascaraDocumentos() {
 
                 document.querySelectorAll('.documento-participante').forEach(input => {
@@ -413,13 +456,13 @@
                     });
 
                 });
-
             }
 
             numeroParticipantes.addEventListener('input', gerarParticipantes);
 
+            // Gera campos ao carregar a página (restaurando old() se houver)
             gerarParticipantes();
 
         });
-        </script>
+    </script>
 @endsection

@@ -121,13 +121,13 @@ class ReservaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'espaco_id' => 'required|exists:espacos,id',
-            'data' => 'required|date|after_or_equal:today',
-            'hora_inicio' => 'required',
-            'hora_fim' => 'required|after:hora_inicio',
-            'numero_participantes' => 'required|integer|min:1',
-            'participantes' => 'nullable|array',
-            'participantes.*.nome' => 'required|string|max:255',
+            'espaco_id'              => 'required|exists:espacos,id',
+            'data'                   => 'required|date|after_or_equal:today',
+            'hora_inicio'            => 'required',
+            'hora_fim'               => 'required|after:hora_inicio',
+            'numero_participantes'   => 'required|integer|min:1',
+            'participantes'          => 'nullable|array',
+            'participantes.*.nome'   => 'required|string|max:255',
             'participantes.*.documento' => 'required|string|max:20',
         ]);
 
@@ -136,36 +136,56 @@ class ReservaController extends Controller
         if ($request->hora_inicio < $espaco->horario_abertura) {
             return back()
                 ->withInput()
-                ->with('error', 'A reserva não pode começar antes do horário de abertura do espaço.');
+                ->with('error', 'A reserva não pode começar antes do horário de abertura do espaço (' . $espaco->horario_abertura . ').');
         }
 
         if ($request->hora_fim > $espaco->horario_encerramento) {
             return back()
                 ->withInput()
-                ->with('error', 'A reserva não pode terminar depois do horário de encerramento do espaço.');
+                ->with('error', 'A reserva não pode terminar depois do horário de encerramento do espaço (' . $espaco->horario_encerramento . ').');
         }
 
         if ($request->numero_participantes < $espaco->min_participantes) {
             return back()
                 ->withInput()
-                ->with('error', 'O número de participantes é menor que o mínimo permitido para este espaço.');
+                ->with('error', 'O número de participantes é menor que o mínimo permitido para este espaço (' . $espaco->min_participantes . ').');
         }
 
         if ($request->numero_participantes > $espaco->max_participantes) {
             return back()
                 ->withInput()
-                ->with('error', 'O número de participantes excede o máximo permitido para este espaço.');
+                ->with('error', 'O número de participantes excede o máximo permitido para este espaço (' . $espaco->max_participantes . ').');
+        }
+
+        // Verifica conflito de horário com reservas existentes (ignora canceladas)
+        $conflito = Reserva::where('espaco_id', $request->espaco_id)
+            ->where('data', $request->data)
+            ->where('status', '!=', 'cancelada')
+            ->where(function ($query) use ($request) {
+                $query->whereBetween('hora_inicio', [$request->hora_inicio, $request->hora_fim])
+                    ->orWhereBetween('hora_fim', [$request->hora_inicio, $request->hora_fim])
+                    ->orWhere(function ($q) use ($request) {
+                        $q->where('hora_inicio', '<=', $request->hora_inicio)
+                            ->where('hora_fim', '>=', $request->hora_fim);
+                    });
+            })
+            ->exists();
+
+        if ($conflito) {
+            return back()
+                ->withInput()
+                ->with('error', 'Já existe uma reserva para este espaço neste horário. Por favor, escolha outro horário.');
         }
 
         Reserva::create([
-            'espaco_id' => $request->espaco_id,
-            'user_id' => auth()->id(),
-            'data' => $request->data,
-            'hora_inicio' => $request->hora_inicio,
-            'hora_fim' => $request->hora_fim,
+            'espaco_id'            => $request->espaco_id,
+            'user_id'              => auth()->id(),
+            'data'                 => $request->data,
+            'hora_inicio'          => $request->hora_inicio,
+            'hora_fim'             => $request->hora_fim,
             'numero_participantes' => $request->numero_participantes,
-            'participantes' => $request->participantes,
-            'status' => 'pendente'
+            'participantes'        => $request->participantes,
+            'status'               => 'pendente',
         ]);
 
         return redirect()
@@ -212,10 +232,10 @@ class ReservaController extends Controller
         $this->authorize('update', $reserva);
 
         $request->validate([
-            'espaco_id' => 'required|exists:espacos,id',
-            'data' => 'required|date',
+            'espaco_id'   => 'required|exists:espacos,id',
+            'data'        => 'required|date',
             'hora_inicio' => 'required',
-            'hora_fim' => 'required|after:hora_inicio'
+            'hora_fim'    => 'required|after:hora_inicio'
         ]);
 
         $existeReserva = Reserva::where('espaco_id', $request->espaco_id)
